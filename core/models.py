@@ -12,7 +12,7 @@ class Company(models.Model):
 
     name = models.CharField(max_length=255)
     website = models.URLField(max_length=500, unique=True)
-    careers_url = models.URLField(max_length=500, blank=True)
+    careers_url = models.URLField(max_length=2000, blank=True)
     country_code = models.CharField(max_length=10, blank=True)
     country_name = models.CharField(max_length=100, blank=True)
     discovered_via = models.CharField(max_length=255, blank=True)
@@ -97,7 +97,7 @@ class Job(models.Model):
     )
     title = models.CharField(max_length=500)
     description = models.TextField(blank=True)
-    apply_url = models.URLField(max_length=500, blank=True)
+    apply_url = models.URLField(max_length=2000, blank=True)
 
     # Language intelligence — always two separate fields
     posting_language = models.CharField(
@@ -233,7 +233,7 @@ class CrawlLog(models.Model):
         ('empty', 'Empty'),
     ]
 
-    url = models.URLField(max_length=500)
+    url = models.URLField(max_length=2000)
     company = models.ForeignKey(
         Company, on_delete=models.SET_NULL,
         null=True, blank=True, related_name='crawl_logs'
