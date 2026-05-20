@@ -94,11 +94,12 @@ CELERY_BROKER_TRANSPORT_OPTIONS = {
     'socket_keepalive': True,
 }
 if REDIS_URL.startswith('rediss://'):
+    import ssl
     CELERY_BROKER_USE_SSL = {
-        'ssl_cert_reqs': None,
+        'ssl_cert_reqs': ssl.CERT_NONE,
     }
     CELERY_REDIS_BACKEND_USE_SSL = {
-        'ssl_cert_reqs': None,
+        'ssl_cert_reqs': ssl.CERT_NONE,
     }
 CELERY_TIMEZONE = 'Africa/Nairobi'
 CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
