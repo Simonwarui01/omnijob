@@ -100,7 +100,6 @@ if REDIS_URL.startswith('rediss://'):
     CELERY_REDIS_BACKEND_USE_SSL = {
         'ssl_cert_reqs': None,
     }
-CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
 CELERY_TIMEZONE = 'Africa/Nairobi'
 CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
 
