@@ -1,0 +1,64 @@
+{% extends 'dashboard/base.html' %}
+{% block title %}— Notifications{% endblock %}
+{% block page_title %}Notifications{% endblock %}
+
+{% block content %}
+
+<div style="margin-bottom:16px; color:var(--text2); font-size:12px;">
+  {{ notifications|length }} notification{{ notifications|length|pluralize }}
+</div>
+
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Alert</th>
+        <th>Message</th>
+        <th>Time</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for notif in notifications %}
+      <tr>
+        <td>
+          {% if notif.notification_type == 'ghost_to_active' %}
+            <span class="badge" style="background:#2d1a1a;color:#ef4444;">🔥 Urgent</span>
+          {% elif notif.notification_type == 'new_job' %}
+            <span class="badge badge-green">💼 New Job</span>
+          {% elif notif.notification_type == 'new_company' %}
+            <span class="badge badge-blue">🏢 New Company</span>
+          {% elif notif.notification_type == 'new_query' %}
+            <span class="badge" style="background:#2d1a3d;color:#8b5cf6;">🔍 New Query</span>
+          {% endif %}
+        </td>
+        <td style="font-weight:500; font-size:13px;">{{ notif.title }}</td>
+        <td style="font-size:12px; color:var(--text2); max-width:300px;">{{ notif.message|truncatechars:100 }}</td>
+        <td style="font-size:12px; color:var(--text2); white-space:nowrap;">{{ notif.created_at|timesince }} ago</td>
+        <td>
+          {% if notif.job %}
+          <a href="{{ notif.job.apply_url }}" target="_blank"
+             style="padding:4px 10px; background:var(--green); color:#000; border-radius:4px; font-size:11px; font-weight:600; text-decoration:none;">
+            Apply →
+          </a>
+          {% elif notif.company %}
+          <a href="{% url 'jobs' %}?q={{ notif.company.name }}"
+             style="padding:4px 10px; background:var(--blue); color:#fff; border-radius:4px; font-size:11px; text-decoration:none;">
+            View Jobs →
+          </a>
+          {% endif %}
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="5" style="text-align:center; color:var(--text2); padding:40px;">
+          No notifications yet. They will appear here when new jobs are found at known companies.
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% endblock %}

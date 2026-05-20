@@ -1,0 +1,269 @@
+{% extends 'dashboard/base.html' %}
+{% block title %}— My Applications{% endblock %}
+{% block page_title %}My Applications{% endblock %}
+
+{% block content %}
+
+<!-- Status summary cards -->
+<div style="display:flex; gap:12px; flex-wrap:wrap; margin-bottom:24px;">
+  <a href="{% url 'my_applications' %}" style="text-decoration:none;">
+    <div style="background:var(--bg2); border:1px solid var(--bg3); border-radius:8px; padding:12px 20px; min-width:100px; text-align:center;">
+      <div style="font-size:20px; font-weight:700; color:var(--text);">{{ total }}</div>
+      <div style="font-size:11px; color:var(--text2);">Total</div>
+    </div>
+  </a>
+  <a href="?status=saved" style="text-decoration:none;">
+    <div style="background:var(--bg2); border:1px solid var(--bg3); border-radius:8px; padding:12px 20px; min-width:100px; text-align:center;">
+      <div style="font-size:20px; font-weight:700; color:var(--text);">{{ counts.saved|default:0 }}</div>
+      <div style="font-size:11px; color:var(--text2);">📌 Saved</div>
+    </div>
+  </a>
+  <a href="?status=applied" style="text-decoration:none;">
+    <div style="background:var(--bg2); border:1px solid {% if status_filter == 'applied' %}var(--green){% else %}var(--bg3){% endif %}; border-radius:8px; padding:12px 20px; min-width:100px; text-align:center;">
+      <div style="font-size:20px; font-weight:700; color:var(--green);">{{ counts.applied|default:0 }}</div>
+      <div style="font-size:11px; color:var(--text2);">✅ Applied</div>
+    </div>
+  </a>
+  <a href="?status=approved" style="text-decoration:none;">
+    <div style="background:var(--bg2); border:1px solid var(--bg3); border-radius:8px; padding:12px 20px; min-width:100px; text-align:center;">
+      <div style="font-size:20px; font-weight:700; color:var(--green);">{{ counts.approved|default:0 }}</div>
+      <div style="font-size:11px; color:var(--text2);">✅ Approved</div>
+    </div>
+  </a>
+  <a href="?status=active_worker" style="text-decoration:none;">
+    <div style="background:var(--bg2); border:1px solid var(--bg3); border-radius:8px; padding:12px 20px; min-width:100px; text-align:center;">
+      <div style="font-size:20px; font-weight:700; color:var(--green);">{{ counts.active_worker|default:0 }}</div>
+      <div style="font-size:11px; color:var(--text2);">🟢 Active</div>
+    </div>
+  </a>
+  <a href="?status=follow_up" style="text-decoration:none;">
+    <div style="background:var(--bg2); border:1px solid var(--bg3); border-radius:8px; padding:12px 20px; min-width:100px; text-align:center;">
+      <div style="font-size:20px; font-weight:700; color:#f59e0b;">{{ counts.follow_up|default:0 }}</div>
+      <div style="font-size:11px; color:var(--text2);">📅 Follow Up</div>
+    </div>
+  </a>
+  <a href="?status=interview" style="text-decoration:none;">
+    <div style="background:var(--bg2); border:1px solid var(--bg3); border-radius:8px; padding:12px 20px; min-width:100px; text-align:center;">
+      <div style="font-size:20px; font-weight:700; color:#f59e0b;">{{ counts.interview|default:0 }}</div>
+      <div style="font-size:11px; color:var(--text2);">🎙️ Interview</div>
+    </div>
+  </a>
+  <a href="?status=rejected" style="text-decoration:none;">
+    <div style="background:var(--bg2); border:1px solid var(--bg3); border-radius:8px; padding:12px 20px; min-width:100px; text-align:center;">
+      <div style="font-size:20px; font-weight:700; color:var(--red);">{{ counts.rejected|default:0 }}</div>
+      <div style="font-size:11px; color:var(--text2);">❌ Rejected</div>
+    </div>
+  </a>
+</div>
+
+<!-- Filters -->
+<div class="filter-bar" style="margin-bottom:16px;">
+  <form method="get" style="display:flex; gap:8px; flex-wrap:wrap;">
+    <select name="status">
+      <option value="">All statuses</option>
+      <option value="saved" {% if status_filter == 'saved' %}selected{% endif %}>📌 Saved</option>
+      <option value="applied" {% if status_filter == 'applied' %}selected{% endif %}>✅ Applied</option>
+      <option value="pending_test" {% if status_filter == 'pending_test' %}selected{% endif %}>📝 Test Pending</option>
+      <option value="test_passed" {% if status_filter == 'test_passed' %}selected{% endif %}>🎯 Test Passed</option>
+      <option value="approved" {% if status_filter == 'approved' %}selected{% endif %}>✅ Approved</option>
+      <option value="active_worker" {% if status_filter == 'active_worker' %}selected{% endif %}>🟢 Active</option>
+      <option value="no_work" {% if status_filter == 'no_work' %}selected{% endif %}>⏳ No Work Yet</option>
+      <option value="follow_up" {% if status_filter == 'follow_up' %}selected{% endif %}>📅 Follow Up</option>
+      <option value="waitlisted" {% if status_filter == 'waitlisted' %}selected{% endif %}>⏸️ Waitlisted</option>
+      <option value="interview" {% if status_filter == 'interview' %}selected{% endif %}>🎙️ Interview</option>
+      <option value="rejected" {% if status_filter == 'rejected' %}selected{% endif %}>❌ Rejected</option>
+      <option value="withdrawn" {% if status_filter == 'withdrawn' %}selected{% endif %}>↩️ Withdrawn</option>
+    </select>
+    <select name="email">
+      <option value="">All emails</option>
+      {% for email in emails %}
+      <option value="{{ email }}" {% if email_filter == email %}selected{% endif %}>{{ email }}</option>
+      {% endfor %}
+    </select>
+    <button class="btn" type="submit">Filter</button>
+    <a href="{% url 'my_applications' %}" class="btn" style="background:var(--bg3); color:var(--text2);">Clear</a>
+  </form>
+</div>
+
+<div style="color:var(--text2); font-size:12px; margin-bottom:12px;">
+  {{ total }} application{{ total|pluralize }} found
+</div>
+
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>Job</th>
+        <th>Company</th>
+        <th>Type</th>
+        <th>Status</th>
+        <th>Email Used</th>
+        <th>Applied</th>
+        <th>Notes</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for app in applications %}
+      <tr>
+        <td>
+          <div style="font-weight:500;">
+            {% if app.job.apply_url %}
+            <a href="{{ app.job.apply_url }}" target="_blank" style="color:var(--text); text-decoration:none;">
+              {{ app.job.title }}
+            </a>
+            {% else %}{{ app.job.title }}{% endif %}
+          </div>
+        </td>
+        <td style="font-size:12px; color:var(--text2);">{{ app.job.company.name }}</td>
+        <td><span class="badge badge-blue">{{ app.job.get_job_type_display }}</span></td>
+        <td>
+          {% if app.status == 'saved' %}<span class="badge">📌 Saved</span>
+          {% elif app.status == 'applied' %}<span class="badge badge-green">✅ Applied</span>
+          {% elif app.status == 'pending_test' %}<span class="badge badge-blue">📝 Test Pending</span>
+          {% elif app.status == 'test_passed' %}<span class="badge badge-green">🎯 Test Passed</span>
+          {% elif app.status == 'approved' %}<span class="badge badge-green">✅ Approved</span>
+          {% elif app.status == 'active_worker' %}<span class="badge badge-green">🟢 Active</span>
+          {% elif app.status == 'no_work' %}<span class="badge badge-amber">⏳ No Work Yet</span>
+          {% elif app.status == 'follow_up' %}<span class="badge badge-amber">📅 Follow Up</span>
+          {% elif app.status == 'waitlisted' %}<span class="badge badge-amber">⏸️ Waitlisted</span>
+          {% elif app.status == 'interview' %}<span class="badge badge-amber">🎙️ Interview</span>
+          {% elif app.status == 'rejected' %}<span class="badge" style="background:#2d1a1a;color:var(--red);">❌ Rejected</span>
+          {% elif app.status == 'withdrawn' %}<span class="badge">↩️ Withdrawn</span>
+          {% endif %}
+        </td>
+        <td style="font-size:12px; color:var(--text2);">{{ app.email_used|default:"—" }}</td>
+        <td style="font-size:12px; color:var(--text2);">
+          {% if app.applied_at %}{{ app.applied_at|date:"M d, Y" }}{% else %}—{% endif %}
+        </td>
+        <td style="font-size:12px; color:var(--text2); max-width:200px;">
+          {{ app.notes|default:"—"|truncatechars:60 }}
+        </td>
+        <td>
+          <button class="btn-track btn-apply"
+            onclick="openTracker({{ app.job.id }}, '{{ app.job.title|escapejs }}', '{{ app.status }}', '{{ app.email_used|default:'' }}', '{{ app.notes|escapejs }}')"
+            style="font-size:11px; padding:4px 8px;">
+            ✏️ Update
+          </button>
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="8" style="text-align:center; color:var(--text2); padding:40px;">
+          No applications yet. Go to <a href="{% url 'jobs' %}" style="color:var(--green);">Jobs</a> and click ✅ Apply on any job.
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- Reuse same modal as jobs page -->
+<div id="tracker-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:1000; align-items:center; justify-content:center;">
+  <div style="background:var(--bg2); border:1px solid var(--bg3); border-radius:12px; padding:24px; width:420px; max-width:90vw;">
+    <h3 id="modal-title" style="margin:0 0 16px; font-size:14px; color:var(--text);">Update Application</h3>
+    <div style="margin-bottom:12px;">
+      <label style="font-size:12px; color:var(--text2); display:block; margin-bottom:4px;">Status</label>
+      <select id="app-status" style="width:100%; padding:8px; background:var(--bg3); border:1px solid var(--bg3); border-radius:6px; color:var(--text);">
+        <option value="saved">📌 Saved for Later</option>
+        <option value="applied">✅ Applied</option>
+        <option value="pending_test">📝 Test Pending</option>
+        <option value="test_passed">🎯 Test Passed</option>
+        <option value="approved">✅ Account Approved</option>
+        <option value="active_worker">🟢 Active — Getting Work</option>
+        <option value="no_work">⏳ Approved — No Work Yet</option>
+        <option value="follow_up">📅 Follow Up Later</option>
+        <option value="waitlisted">⏸️ Waitlisted</option>
+        <option value="interview">🎙️ Interview Scheduled</option>
+        <option value="rejected">❌ Rejected</option>
+        <option value="withdrawn">↩️ Withdrawn</option>
+      </select>
+    </div>
+    <div style="margin-bottom:12px;">
+      <label style="font-size:12px; color:var(--text2); display:block; margin-bottom:4px;">Email used</label>
+      <input type="email" id="app-email" style="width:100%; padding:8px; background:var(--bg3); border:1px solid var(--bg3); border-radius:6px; color:var(--text); box-sizing:border-box;">
+    </div>
+
+    <div id="followup-field" style="margin-bottom:12px; display:none;">
+      <label style="font-size:12px; color:var(--text2); display:block; margin-bottom:4px;">📅 Follow up date</label>
+      <input type="date" id="app-followup" style="width:100%; padding:8px; background:var(--bg3); border:1px solid var(--bg3); border-radius:6px; color:var(--text); box-sizing:border-box;">
+    </div>
+
+    <div style="margin-bottom:16px;">
+      <label style="font-size:12px; color:var(--text2); display:block; margin-bottom:4px;">Notes</label>
+      <textarea id="app-notes" rows="3" style="width:100%; padding:8px; background:var(--bg3); border:1px solid var(--bg3); border-radius:6px; color:var(--text); box-sizing:border-box; resize:vertical;"></textarea>
+    </div>
+    <div style="display:flex; gap:8px; justify-content:flex-end;">
+      <button onclick="closeTracker()" style="padding:8px 16px; background:var(--bg3); border:none; border-radius:6px; color:var(--text); cursor:pointer;">Cancel</button>
+      <button onclick="saveApplication()" style="padding:8px 16px; background:var(--green); border:none; border-radius:6px; color:#000; cursor:pointer; font-weight:600;">Save</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let currentJobId = null;
+
+function openTracker(jobId, jobTitle, status, email, notes) {
+  currentJobId = jobId;
+  document.getElementById('modal-title').textContent = jobTitle;
+  document.getElementById('app-status').value = status || 'applied';
+  document.getElementById('app-email').value = email || '';
+  document.getElementById('app-notes').value = notes || '';
+  document.getElementById('tracker-modal').style.display = 'flex';
+}
+
+function closeTracker() {
+  document.getElementById('tracker-modal').style.display = 'none';
+}
+
+function saveApplication() {
+  const status = document.getElementById('app-status').value;
+  const email = document.getElementById('app-email').value;
+  const notes = document.getElementById('app-notes').value;
+
+  fetch(`/jobs/${currentJobId}/apply/`, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken')},
+    body: JSON.stringify({status, email, notes})
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.success) {
+      closeTracker();
+      location.reload();
+    }
+  });
+}
+
+document.getElementById('app-status').addEventListener('change', function() {
+  const followupField = document.getElementById('followup-field');
+  followupField.style.display = this.value === 'follow_up' ? 'block' : 'none';
+});
+
+
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== '') {
+    const cookies = document.cookie.split(';');
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i].trim();
+      if (cookie.substring(0, name.length + 1) === (name + '=')) {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+}
+
+document.getElementById('tracker-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeTracker();
+});
+</script>
+
+<style>
+.btn-track { padding:4px 10px; border:none; border-radius:4px; cursor:pointer; font-size:11px; font-weight:600; }
+.btn-apply { background:var(--green); color:#000; }
+</style>
+
+{% endblock %}

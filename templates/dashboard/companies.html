@@ -1,0 +1,58 @@
+{% extends 'dashboard/base.html' %}
+{% block title %}— Companies{% endblock %}
+{% block page_title %}Companies Discovered{% endblock %}
+
+{% block content %}
+<div class="filter-bar">
+  <form method="get" style="display:flex; gap:10px; flex-wrap:wrap;">
+    <input type="text" name="q" placeholder="Search companies..." value="{{ search|default:'' }}">
+    <select name="status">
+      <option value="">All statuses</option>
+      <option value="active" {% if status == 'active' %}selected{% endif %}>Active</option>
+      <option value="inactive" {% if status == 'inactive' %}selected{% endif %}>Inactive</option>
+      <option value="blocked" {% if status == 'blocked' %}selected{% endif %}>Blocked</option>
+    </select>
+    <button class="btn" type="submit">Filter</button>
+  </form>
+</div>
+
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>Company</th>
+        <th>Country</th>
+        <th>Status</th>
+        <th>Trust Score</th>
+        <th>Discovered Via</th>
+        <th>First Seen</th>
+        <th>Last Checked</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for company in companies %}
+      <tr>
+        <td>
+          <div style="font-weight:500;">{{ company.name }}</div>
+          <div style="font-size:11px; color:var(--text2);">
+            <a href="{{ company.website }}" target="_blank" style="color:var(--accent);">{{ company.website }}</a>
+          </div>
+        </td>
+        <td>{{ company.country_name|default:company.country_code|default:"—" }}</td>
+        <td><span class="badge badge-{{ company.status }}">{{ company.status }}</span></td>
+        <td>
+          <span style="color: {% if company.trust_score >= 70 %}var(--green){% elif company.trust_score >= 40 %}var(--amber){% else %}var(--red){% endif %};">
+            {{ company.trust_score }}/100
+          </span>
+        </td>
+        <td style="color:var(--text2); font-size:12px;">{{ company.discovered_via|default:"—" }}</td>
+        <td style="color:var(--text2); font-size:12px;">{{ company.first_seen|date:"M d, Y" }}</td>
+        <td style="color:var(--text2); font-size:12px;">{{ company.last_checked|date:"M d, Y"|default:"Never" }}</td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="7" style="text-align:center; color:var(--text2); padding:40px;">No companies discovered yet.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

@@ -1,0 +1,150 @@
+{% extends 'dashboard/base.html' %}
+{% block title %}— Dashboard{% endblock %}
+{% block page_title %}Intelligence Dashboard{% endblock %}
+
+{% block content %}
+
+<!-- Notification Banner -->
+{% if notifications %}
+<div style="background:linear-gradient(135deg, #1a1a2e, #16213e); border:1px solid #f59e0b; border-radius:10px; padding:16px 20px; margin-bottom:20px;">
+  <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
+    <div style="display:flex; align-items:center; gap:10px;">
+      <span style="font-size:20px;">🔔</span>
+      <span style="color:#f59e0b; font-weight:700; font-size:14px;">
+        {{ notifications|length }} New Alert{{ notifications|length|pluralize }}
+      </span>
+    </div>
+    <a href="{% url 'notifications' %}" style="font-size:11px; color:#f59e0b; text-decoration:none;">View all →</a>
+  </div>
+  {% for notif in notifications %}
+  <div style="background:rgba(245,158,11,0.08); border-left:3px solid
+    {% if notif.notification_type == 'ghost_to_active' %}#ef4444
+    {% elif notif.notification_type == 'new_job' %}#22c55e
+    {% elif notif.notification_type == 'new_company' %}#3b82f6
+    {% else %}#8b5cf6{% endif %};
+    border-radius:4px; padding:10px 14px; margin-bottom:8px;">
+    <div style="display:flex; justify-content:space-between; align-items:start;">
+      <div>
+        <div style="font-size:13px; font-weight:600; color:var(--text);">
+          {% if notif.notification_type == 'ghost_to_active' %}🔥
+          {% elif notif.notification_type == 'new_job' %}💼
+          {% elif notif.notification_type == 'new_company' %}🏢
+          {% else %}🔍{% endif %}
+          {{ notif.title }}
+        </div>
+        <div style="font-size:11px; color:var(--text2); margin-top:3px;">
+          {{ notif.message|truncatechars:120 }}
+        </div>
+      </div>
+      <div style="font-size:10px; color:var(--text2); white-space:nowrap; margin-left:12px;">
+        {{ notif.created_at|timesince }} ago
+      </div>
+    </div>
+    {% if notif.job %}
+    <a href="{{ notif.job.apply_url }}" target="_blank"
+       style="display:inline-block; margin-top:6px; padding:3px 10px; background:#22c55e; color:#000; border-radius:4px; font-size:11px; font-weight:600; text-decoration:none;">
+      Apply Now →
+    </a>
+    {% endif %}
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<!-- Stat cards -->
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-value">{{ total_jobs }}</div>
+    <div class="stat-label">Total Jobs Found</div>
+  </div>
+  <div class="stat-card green">
+    <div class="stat-value">{{ active_jobs }}</div>
+    <div class="stat-label">Active Vacancies</div>
+  </div>
+  <div class="stat-card blue">
+    <div class="stat-value">{{ worldwide_jobs }}</div>
+    <div class="stat-label">Worldwide (No Restriction)</div>
+  </div>
+  <div class="stat-card amber">
+    <div class="stat-value">{{ ghost_jobs }}</div>
+    <div class="stat-label">Ghost Pipelines</div>
+  </div>
+  <div class="stat-card purple">
+    <div class="stat-value">{{ total_companies }}</div>
+    <div class="stat-label">Companies Discovered</div>
+  </div>
+  <div class="stat-card red">
+    <div class="stat-value">{{ new_jobs }}</div>
+    <div class="stat-label">New (Unseen)</div>
+  </div>
+</div>
+
+<div class="two-col">
+
+  <!-- Recent jobs -->
+  <div class="panel">
+    <div class="panel-header">
+      <span>🆕 Latest Jobs Discovered</span>
+      <a href="{% url 'jobs' %}" class="panel-link">View all</a>
+    </div>
+    <div class="panel-body">
+      {% for job in recent_jobs %}
+      <div class="list-item">
+        <div class="list-main">
+          <div class="list-title">{{ job.title }}</div>
+          <div class="list-sub">{{ job.company.name }} · {{ job.company.country_name }}</div>
+        </div>
+        <div class="list-right">
+          <span class="badge badge-{{ job.vacancy_state }}">{{ job.get_vacancy_state_display }}</span>
+          {% if job.geo_tier == 1 %}<span class="badge badge-green">🌍 Worldwide</span>{% endif %}
+          {% if job.citizenship_flag %}<span class="badge badge-amber">⚠️ Citizenship</span>{% endif %}
+        </div>
+      </div>
+      {% empty %}
+      <div class="empty">No jobs discovered yet. Start the crawler to begin.</div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Right column -->
+  <div class="right-col">
+
+    <!-- State transitions -->
+    <div class="panel">
+      <div class="panel-header">🔥 Recent State Changes</div>
+      <div class="panel-body">
+        {% for t in recent_transitions %}
+        <div class="list-item">
+          <div class="list-main">
+            <div class="list-title">{{ t.company.name }}</div>
+            <div class="list-sub">{{ t.previous_state }} → {{ t.new_state }}</div>
+          </div>
+          <div class="list-right">
+            <span class="time">{{ t.changed_at|timesince }} ago</span>
+          </div>
+        </div>
+        {% empty %}
+        <div class="empty">No transitions yet.</div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Crawl health -->
+    <div class="panel">
+      <div class="panel-header">📡 Crawler Health</div>
+      <div class="panel-body">
+        <div class="health-row">
+          <span class="health-label">✅ Successful crawls</span>
+          <span class="health-val green">{{ crawl_success }}</span>
+        </div>
+        <div class="health-row">
+          <span class="health-label">🚫 Blocked</span>
+          <span class="health-val red">{{ crawl_blocked }}</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}

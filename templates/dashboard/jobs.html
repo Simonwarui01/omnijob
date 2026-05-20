@@ -1,0 +1,391 @@
+{% extends 'dashboard/base.html' %}
+{% block title %}— Jobs{% endblock %}
+{% block page_title %}Jobs Discovered{% endblock %}
+
+{% block content %}
+<div class="filter-bar">
+  <form method="get" style="display:flex; gap:8px; flex-wrap:wrap;">
+    {% if hidden_gems %}<input type="hidden" name="hidden_gems" value="1">{% endif %}
+    <input type="text" name="q" placeholder="Search jobs..." value="{{ search|default:'' }}">
+    <select name="type">
+      <option value="">All types</option>
+      <option value="transcription" {% if job_type == 'transcription' %}selected{% endif %}>Transcription</option>
+      <option value="annotation" {% if job_type == 'annotation' %}selected{% endif %}>Data Annotation</option>
+      <option value="ai_training" {% if job_type == 'ai_training' %}selected{% endif %}>AI Training</option>
+      <option value="translation" {% if job_type == 'translation' %}selected{% endif %}>Translation</option>
+      <option value="voice" {% if job_type == 'voice' %}selected{% endif %}>Voice Recording</option>
+      <option value="content_moderation" {% if job_type == 'content_moderation' %}selected{% endif %}>Content Moderation</option>
+      <option value="qa" {% if job_type == 'qa' %}selected{% endif %}>Quality Assurance</option>
+      <option value="emerging" {% if job_type == 'emerging' %}selected{% endif %}>Emerging</option>
+    </select>
+    <select name="state">
+      <option value="">All states</option>
+      <option value="active" {% if state == 'active' %}selected{% endif %}>Active</option>
+      <option value="ghost_pipeline" {% if state == 'ghost_pipeline' %}selected{% endif %}>Ghost Pipeline</option>
+      <option value="closed" {% if state == 'closed' %}selected{% endif %}>Closed</option>
+      <option value="unknown" {% if state == 'unknown' %}selected{% endif %}>Unknown</option>
+    </select>
+    <select name="geo">
+      <option value="">All locations</option>
+      <option value="1" {% if geo == '1' %}selected{% endif %}>🌍 Worldwide</option>
+      <option value="2" {% if geo == '2' %}selected{% endif %}>🌍 Africa Inclusive</option>
+      <option value="3" {% if geo == '3' %}selected{% endif %}>⚠️ Citizenship Flag</option>
+      <option value="4" {% if geo == '4' %}selected{% endif %}>🔍 Region Restricted</option>
+      <option value="0" {% if geo == '0' %}selected{% endif %}>❓ Unknown</option>
+    </select>
+    <select name="posting_lang">
+      <option value="">All posting languages</option>
+      <option value="de" {% if posting_lang == 'de' %}selected{% endif %}>🇩🇪 German</option>
+      <option value="fr" {% if posting_lang == 'fr' %}selected{% endif %}>🇫🇷 French</option>
+      <option value="nl" {% if posting_lang == 'nl' %}selected{% endif %}>🇳🇱 Dutch</option>
+      <option value="sv" {% if posting_lang == 'sv' %}selected{% endif %}>🇸🇪 Swedish</option>
+      <option value="no" {% if posting_lang == 'no' %}selected{% endif %}>🇳🇴 Norwegian</option>
+      <option value="fi" {% if posting_lang == 'fi' %}selected{% endif %}>🇫🇮 Finnish</option>
+      <option value="ja" {% if posting_lang == 'ja' %}selected{% endif %}>🇯🇵 Japanese</option>
+      <option value="ko" {% if posting_lang == 'ko' %}selected{% endif %}>🇰🇷 Korean</option>
+      <option value="pl" {% if posting_lang == 'pl' %}selected{% endif %}>🇵🇱 Polish</option>
+      <option value="ar" {% if posting_lang == 'ar' %}selected{% endif %}>🇸🇦 Arabic</option>
+      <option value="en" {% if posting_lang == 'en' %}selected{% endif %}>🇬🇧 English</option>
+    </select>
+    <select name="onboarding">
+      <option value="">All onboarding</option>
+      <option value="1" {% if onboarding == '1' %}selected{% endif %}>⚡ Test only</option>
+      <option value="2" {% if onboarding == '2' %}selected{% endif %}>📝 Async form</option>
+      <option value="3" {% if onboarding == '3' %}selected{% endif %}>📹 Video interview</option>
+      <option value="4" {% if onboarding == '4' %}selected{% endif %}>📄 Document heavy</option>
+    </select>
+    <select name="citizenship">
+      <option value="">All jobs</option>
+      <option value="1" {% if citizenship %}selected{% endif %}>⚠️ Citizenship flagged</option>
+    </select>
+    <button class="btn" type="submit">Filter</button>
+    <a href="{% url 'jobs' %}" class="btn" style="background:var(--bg3); color:var(--text2);">Clear</a>
+    <a href="?hidden_gems=1" class="btn" style="background:#7c3aed; color:#fff;">
+      💎 Hidden Gems
+    </a>
+  </form>
+</div>
+
+<div style="color:var(--text2); font-size:12px; margin-bottom:12px;">
+  {{ jobs|length }} job{{ jobs|length|pluralize }} found
+</div>
+
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>Job</th>
+        <th>Type</th>
+        <th>State</th>
+        <th>Location</th>
+        <th>Post → Work lang</th>
+        <th>Onboarding</th>
+        <th>Flags</th>
+        <th>Found</th>
+        <th>Track</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for job in jobs %}
+      <tr>
+        <td>
+          <div style="font-weight:500;" id="job-title-{{ job.id }}">
+            {% if job.apply_url %}
+            <a href="{{ job.apply_url }}" target="_blank"
+               style="color:{% if job.is_viewed %}var(--text2){% else %}var(--text){% endif %}; text-decoration:{% if job.is_viewed %}line-through{% else %}none{% endif %}; opacity:{% if job.is_viewed %}0.6{% else %}1{% endif %};"
+               onclick="markViewed({{ job.id }})">
+              {{ job.title }}
+            </a>
+            {% else %}{{ job.title }}{% endif %}
+          </div>
+          <div style="font-size:11px; color:var(--text2);">
+            {{ job.company.name }} · {{ job.company.country_name }}
+            {% if job.is_verified_url %}<span style="color:#22c55e; font-size:10px; font-weight:600; margin-left:6px;">✅ Verified Link</span>{% endif %}
+          </div>
+        </td>
+        <td><span class="badge badge-blue">{{ job.get_job_type_display }}</span></td>
+        <td><span class="badge badge-{{ job.vacancy_state }}">{{ job.get_vacancy_state_display }}</span></td>
+        <td>
+          {% if job.geo_tier == 1 %}<span class="badge badge-green">🌍 Worldwide</span>
+          {% elif job.geo_tier == 2 %}<span class="badge badge-green">🌍 Africa OK</span>
+          {% elif job.geo_tier == 3 %}<span class="badge badge-amber">⚠️ Legal flag</span>
+          {% elif job.geo_tier == 4 %}<span class="badge badge-amber">🔍 Investigate</span>
+          {% elif job.geo_tier == 5 %}<span class="badge" style="background:#2d1a1a;color:var(--red);">❌ Physical</span>
+          {% else %}<span class="badge">❓ Unknown</span>{% endif %}
+        </td>
+        <td style="font-size:12px;">
+          <span style="color:var(--text2);">{{ job.posting_language }}</span>
+          <span style="color:var(--text2);"> → </span>
+          <strong style="color:var(--green);">{{ job.work_language }}</strong>
+        </td>
+        <td>
+          {% if job.onboarding_level == 1 %}<span class="badge badge-green">⚡ Test only</span>
+          {% elif job.onboarding_level == 2 %}<span class="badge badge-blue">📝 Async</span>
+          {% elif job.onboarding_level == 3 %}<span class="badge badge-amber">📹 Video</span>
+          {% elif job.onboarding_level == 4 %}<span class="badge" style="background:#2d1a1a;color:var(--red);">📄 Docs</span>
+          {% else %}<span class="badge">—</span>{% endif %}
+        </td>
+        <td>
+          {% if job.is_verified_url %}<span class="badge badge-green">✅ Verified</span>{% endif %}
+          {% if job.citizenship_flag %}<span class="badge badge-amber">⚠️ Citizenship</span>{% endif %}
+          {% if job.is_new %}<span class="badge badge-green">🆕 New</span>{% endif %}
+        </td>
+        <td style="color:var(--text2); font-size:12px;">{{ job.first_seen|date:"M d" }}</td>
+        <td>
+          <div class="app-tracker" data-job-id="{{ job.id }}">
+            <div style="display:flex; flex-direction:column; gap:4px;">
+              <button class="btn-track btn-apply" onclick="openTracker({{ job.id }}, '{{ job.title|escapejs }}')">
+                ✅ Track
+              </button>
+              <button id="queue-btn-{{ job.id }}"
+                onclick="toggleQueue({{ job.id }})"
+                style="padding:4px 10px; border:none; border-radius:4px; cursor:pointer; font-size:11px; font-weight:600;
+                background:{% if job.is_queued %}#f59e0b{% else %}var(--bg3){% endif %};
+                color:{% if job.is_queued %}#000{% else %}var(--text2){% endif %};">
+                {% if job.is_queued %}📋 Queued{% else %}+ Queue{% endif %}
+              </button>
+            </div>
+            <div class="app-status-display" id="status-{{ job.id }}"></div>
+          </div>
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="8" style="text-align:center; color:var(--text2); padding:40px;">
+          No jobs found matching your filters.
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+<!-- Application Tracker Modal -->
+<div id="tracker-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:1000; align-items:center; justify-content:center;">
+  <div style="background:var(--bg2); border:1px solid var(--bg3); border-radius:12px; padding:24px; width:420px; max-width:90vw;">
+    <h3 id="modal-title" style="margin:0 0 16px; font-size:14px; color:var(--text);">Track Application</h3>
+
+    <div style="margin-bottom:12px;">
+      <label style="font-size:12px; color:var(--text2); display:block; margin-bottom:4px;">Status</label>
+      <select id="app-status" style="width:100%; padding:8px; background:var(--bg3); border:1px solid var(--bg3); border-radius:6px; color:var(--text);">
+        <option value="saved">📌 Saved for Later</option>
+        <option value="applied">✅ Applied</option>
+        <option value="pending_test">📝 Test Pending</option>
+        <option value="test_passed">🎯 Test Passed</option>
+        <option value="approved">✅ Account Approved</option>
+        <option value="active_worker">🟢 Active — Getting Work</option>
+        <option value="no_work">⏳ Approved — No Work Yet</option>
+        <option value="follow_up">📅 Follow Up Later</option>
+        <option value="waitlisted">⏸️ Waitlisted</option>
+        <option value="interview">🎙️ Interview Scheduled</option>
+        <option value="rejected">❌ Rejected</option>
+        <option value="withdrawn">↩️ Withdrawn</option>
+      </select>
+    </div>
+
+    <div style="margin-bottom:12px;">
+      <label style="font-size:12px; color:var(--text2); display:block; margin-bottom:4px;">Email used to apply</label>
+      <input type="email" id="app-email" placeholder="yourname@gmail.com" style="width:100%; padding:8px; background:var(--bg3); border:1px solid var(--bg3); border-radius:6px; color:var(--text); box-sizing:border-box;">
+    </div>
+
+    <div id="followup-field" style="margin-bottom:12px; display:none;">
+      <label style="font-size:12px; color:var(--text2); display:block; margin-bottom:4px;">📅 Follow up date</label>
+      <input type="date" id="app-followup" style="width:100%; padding:8px; background:var(--bg3); border:1px solid var(--bg3); border-radius:6px; color:var(--text); box-sizing:border-box;">
+    </div>
+
+    <div style="margin-bottom:16px;">
+      <label style="font-size:12px; color:var(--text2); display:block; margin-bottom:4px;">Notes (optional)</label>
+      <textarea id="app-notes" rows="3" placeholder="e.g. Applied via LinkedIn, waiting for response..." style="width:100%; padding:8px; background:var(--bg3); border:1px solid var(--bg3); border-radius:6px; color:var(--text); box-sizing:border-box; resize:vertical;"></textarea>
+    </div>
+
+    <!-- Previous applications for this job -->
+    <div id="previous-apps" style="margin-bottom:16px; display:none;">
+      <div style="font-size:12px; color:var(--text2); margin-bottom:8px;">Previous applications:</div>
+      <div id="apps-list" style="font-size:12px;"></div>
+    </div>
+
+    <div style="display:flex; gap:8px; justify-content:flex-end;">
+      <button onclick="closeTracker()" style="padding:8px 16px; background:var(--bg3); border:none; border-radius:6px; color:var(--text); cursor:pointer;">Cancel</button>
+      <button onclick="saveApplication()" style="padding:8px 16px; background:var(--green); border:none; border-radius:6px; color:#000; cursor:pointer; font-weight:600;">Save</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let currentJobId = null;
+
+function openTracker(jobId, jobTitle) {
+  currentJobId = jobId;
+  document.getElementById('modal-title').textContent = jobTitle;
+  document.getElementById('app-status').value = 'applied';
+  document.getElementById('app-email').value = '';
+  document.getElementById('app-notes').value = '';
+  document.getElementById('previous-apps').style.display = 'none';
+
+  // Load existing applications
+  fetch(`/jobs/${jobId}/applications/`)
+    .then(r => r.json())
+    .then(data => {
+      if (data.applications && data.applications.length > 0) {
+        const list = document.getElementById('apps-list');
+        list.innerHTML = data.applications.map(a => `
+          <div style="padding:6px 8px; background:var(--bg3); border-radius:4px; margin-bottom:4px;">
+            <span style="color:var(--green);">${a.status}</span>
+            ${a.email ? `· <span style="color:var(--text2);">${a.email}</span>` : ''}
+            ${a.applied_at ? `· <span style="color:var(--text2);">${new Date(a.applied_at).toLocaleDateString()}</span>` : ''}
+          </div>
+        `).join('');
+        document.getElementById('previous-apps').style.display = 'block';
+      }
+    });
+
+  const modal = document.getElementById('tracker-modal');
+  modal.style.display = 'flex';
+}
+
+function closeTracker() {
+  document.getElementById('tracker-modal').style.display = 'none';
+  currentJobId = null;
+}
+
+function saveApplication() {
+  const status = document.getElementById('app-status').value;
+  const email = document.getElementById('app-email').value;
+  const notes = document.getElementById('app-notes').value;
+
+  if (status === 'applied' && !email) {
+    alert('Please enter the email you used to apply.');
+    return;
+  }
+
+  fetch(`/jobs/${currentJobId}/apply/`, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken')},
+    body: JSON.stringify({status, email, notes})
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.success) {
+      // Update the button in the row
+      const display = document.getElementById(`status-${currentJobId}`);
+      const statusLabels = {
+        'saved': '📌 Saved',
+        'applied': '✅ Applied',
+        'interview': '🎯 Interview',
+        'rejected': '❌ Rejected',
+        'withdrawn': '↩️ Withdrawn',
+      };
+      display.innerHTML = `<span style="font-size:11px; color:var(--green);">${statusLabels[data.status] || data.status}</span>`;
+      if (email) {
+        display.innerHTML += `<br><span style="font-size:10px; color:var(--text2);">${email}</span>`;
+      }
+      closeTracker();
+    }
+  })
+  .catch(err => alert('Error saving: ' + err));
+}
+
+document.getElementById('app-status').addEventListener('change', function() {
+  const followupField = document.getElementById('followup-field');
+  followupField.style.display = this.value === 'follow_up' ? 'block' : 'none';
+});
+
+function markViewed(jobId) {
+  fetch(`/jobs/${jobId}/viewed/`, {
+    method: 'POST',
+    headers: {'X-CSRFToken': getCookie('csrftoken')},
+  });
+  // Grey out the title
+  const titleEl = document.querySelector(`#job-title-${jobId} a`);
+  if (titleEl) {
+    titleEl.style.color = 'var(--text2)';
+    titleEl.style.textDecoration = 'line-through';
+    titleEl.style.opacity = '0.6';
+  }
+}
+
+function toggleQueue(jobId) {
+  fetch(`/jobs/${jobId}/queue/`, {
+    method: 'POST',
+    headers: {'X-CSRFToken': getCookie('csrftoken')},
+  })
+  .then(r => r.json())
+  .then(data => {
+    const btn = document.getElementById(`queue-btn-${jobId}`);
+    if (data.is_queued) {
+      btn.textContent = '📋 Queued';
+      btn.style.background = '#f59e0b';
+      btn.style.color = '#000';
+    } else {
+      btn.textContent = '+ Queue';
+      btn.style.background = 'var(--bg3)';
+      btn.style.color = 'var(--text2)';
+    }
+  });
+}
+
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== '') {
+    const cookies = document.cookie.split(';');
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i].trim();
+      if (cookie.substring(0, name.length + 1) === (name + '=')) {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+}
+
+// Load existing application statuses on page load
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('.app-tracker').forEach(tracker => {
+    const jobId = tracker.dataset.jobId;
+    fetch(`/jobs/${jobId}/applications/`)
+      .then(r => r.json())
+      .then(data => {
+        if (data.applications && data.applications.length > 0) {
+          const latest = data.applications[0];
+          const display = document.getElementById(`status-${jobId}`);
+          const statusLabels = {
+            'saved': '📌 Saved',
+            'applied': '✅ Applied',
+            'interview': '🎯 Interview',
+            'rejected': '❌ Rejected',
+            'withdrawn': '↩️ Withdrawn',
+          };
+          display.innerHTML = `<span style="font-size:11px; color:var(--green);">${statusLabels[latest.status] || latest.status}</span>`;
+          if (latest.email) {
+            display.innerHTML += `<br><span style="font-size:10px; color:var(--text2);">${latest.email}</span>`;
+          }
+        }
+      });
+  });
+});
+
+// Close modal when clicking outside
+document.getElementById('tracker-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeTracker();
+});
+</script>
+
+<style>
+.btn-track {
+  padding: 4px 10px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 600;
+}
+.btn-apply {
+  background: var(--green);
+  color: #000;
+}
+.btn-apply:hover {
+  opacity: 0.85;
+}
+</style>
+
+{% endblock %}

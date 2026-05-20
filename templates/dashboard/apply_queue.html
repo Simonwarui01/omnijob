@@ -1,0 +1,205 @@
+{% extends 'dashboard/base.html' %}
+{% block title %}— Apply Queue{% endblock %}
+{% block page_title %}Apply Queue{% endblock %}
+
+{% block content %}
+
+<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
+  <div style="color:var(--text2); font-size:12px;">{{ total }} job{{ total|pluralize }} queued to apply</div>
+  <a href="{% url 'jobs' %}" class="btn" style="font-size:12px;">← Back to Jobs</a>
+</div>
+
+{% if not jobs %}
+<div style="text-align:center; padding:60px; color:var(--text2);">
+  <div style="font-size:40px; margin-bottom:16px;">📋</div>
+  <div style="font-size:16px; margin-bottom:8px;">No jobs queued yet</div>
+  <div style="font-size:13px;">Go to <a href="{% url 'jobs' %}" style="color:var(--green);">Jobs</a> and click <strong>+ Queue</strong> on jobs you want to apply to</div>
+</div>
+{% else %}
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>Job</th>
+        <th>Type</th>
+        <th>Location</th>
+        <th>Post → Work</th>
+        <th>Apply</th>
+        <th>Track</th>
+        <th>Remove</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for job in jobs %}
+      <tr id="queue-row-{{ job.id }}" style="{% if job.is_viewed %}opacity:0.5;{% endif %}">
+        <td>
+          <div style="font-weight:500;">
+            <a href="{{ job.apply_url }}" target="_blank"
+               style="color:var(--text); text-decoration:none;"
+               onclick="markViewed({{ job.id }})">
+              {{ job.title }}
+            </a>
+            {% if job.is_verified_url %}
+            <span style="color:#22c55e; font-size:10px; margin-left:6px;">✅ Verified</span>
+            {% endif %}
+          </div>
+          <div style="font-size:11px; color:var(--text2);">{{ job.company.name }}</div>
+        </td>
+        <td><span class="badge badge-blue">{{ job.get_job_type_display }}</span></td>
+        <td>
+          {% if job.geo_tier == 1 %}<span class="badge badge-green">🌍 Worldwide</span>
+          {% elif job.geo_tier == 2 %}<span class="badge badge-green">🌍 Africa OK</span>
+          {% else %}<span class="badge">❓ Unknown</span>{% endif %}
+        </td>
+        <td style="font-size:12px;">
+          {{ job.posting_language }} → <strong style="color:var(--green);">{{ job.work_language }}</strong>
+        </td>
+        <td>
+          <a href="{{ job.apply_url }}" target="_blank"
+             onclick="markViewed({{ job.id }})"
+             style="padding:5px 12px; background:var(--green); color:#000; border-radius:4px; font-size:12px; font-weight:700; text-decoration:none;">
+            Apply Now →
+          </a>
+        </td>
+        <td>
+          <button class="btn-track btn-apply" onclick="openTracker({{ job.id }}, '{{ job.title|escapejs }}')">
+            ✅ Track
+          </button>
+        </td>
+        <td>
+          <button onclick="removeFromQueue({{ job.id }})"
+            style="padding:4px 8px; background:#2d1a1a; border:none; border-radius:4px; color:#ef4444; cursor:pointer; font-size:11px;">
+            ✕ Remove
+          </button>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- Application tracker modal -->
+<div id="tracker-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:1000; align-items:center; justify-content:center;">
+  <div style="background:var(--bg2); border:1px solid var(--bg3); border-radius:12px; padding:24px; width:420px; max-width:90vw;">
+    <h3 id="modal-title" style="margin:0 0 16px; font-size:14px; color:var(--text);">Track Application</h3>
+    <div style="margin-bottom:12px;">
+      <label style="font-size:12px; color:var(--text2); display:block; margin-bottom:4px;">Status</label>
+      <select id="app-status" style="width:100%; padding:8px; background:var(--bg3); border:1px solid var(--bg3); border-radius:6px; color:var(--text);">
+        <option value="saved">📌 Saved for Later</option>
+        <option value="applied">✅ Applied</option>
+        <option value="pending_test">📝 Test Pending</option>
+        <option value="test_passed">🎯 Test Passed</option>
+        <option value="approved">✅ Account Approved</option>
+        <option value="active_worker">🟢 Active — Getting Work</option>
+        <option value="no_work">⏳ Approved — No Work Yet</option>
+        <option value="follow_up">📅 Follow Up Later</option>
+        <option value="waitlisted">⏸️ Waitlisted</option>
+        <option value="interview">🎙️ Interview Scheduled</option>
+        <option value="rejected">❌ Rejected</option>
+        <option value="withdrawn">↩️ Withdrawn</option>
+      </select>
+    </div>
+    <div style="margin-bottom:12px;">
+      <label style="font-size:12px; color:var(--text2); display:block; margin-bottom:4px;">Email used</label>
+      <input type="email" id="app-email" style="width:100%; padding:8px; background:var(--bg3); border:1px solid var(--bg3); border-radius:6px; color:var(--text); box-sizing:border-box;">
+    </div>
+    <div id="followup-field" style="margin-bottom:12px; display:none;">
+      <label style="font-size:12px; color:var(--text2); display:block; margin-bottom:4px;">📅 Follow up date</label>
+      <input type="date" id="app-followup" style="width:100%; padding:8px; background:var(--bg3); border:1px solid var(--bg3); border-radius:6px; color:var(--text); box-sizing:border-box;">
+    </div>
+    <div style="margin-bottom:16px;">
+      <label style="font-size:12px; color:var(--text2); display:block; margin-bottom:4px;">Notes</label>
+      <textarea id="app-notes" rows="3" style="width:100%; padding:8px; background:var(--bg3); border:1px solid var(--bg3); border-radius:6px; color:var(--text); box-sizing:border-box; resize:vertical;"></textarea>
+    </div>
+    <div style="display:flex; gap:8px; justify-content:flex-end;">
+      <button onclick="closeTracker()" style="padding:8px 16px; background:var(--bg3); border:none; border-radius:6px; color:var(--text); cursor:pointer;">Cancel</button>
+      <button onclick="saveApplication()" style="padding:8px 16px; background:var(--green); border:none; border-radius:6px; color:#000; cursor:pointer; font-weight:600;">Save</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let currentJobId = null;
+
+function markViewed(jobId) {
+  fetch(`/jobs/${jobId}/viewed/`, {
+    method: 'POST',
+    headers: {'X-CSRFToken': getCookie('csrftoken')},
+  });
+  const row = document.getElementById(`queue-row-${jobId}`);
+  if (row) row.style.opacity = '0.5';
+}
+
+function removeFromQueue(jobId) {
+  fetch(`/jobs/${jobId}/queue/`, {
+    method: 'POST',
+    headers: {'X-CSRFToken': getCookie('csrftoken')},
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (!data.is_queued) {
+      const row = document.getElementById(`queue-row-${jobId}`);
+      if (row) {
+        row.style.transition = 'opacity 0.3s';
+        row.style.opacity = '0';
+        setTimeout(() => row.remove(), 300);
+      }
+    }
+  });
+}
+
+function openTracker(jobId, jobTitle) {
+  currentJobId = jobId;
+  document.getElementById('modal-title').textContent = jobTitle;
+  document.getElementById('app-status').value = 'applied';
+  document.getElementById('app-email').value = '';
+  document.getElementById('app-notes').value = '';
+  document.getElementById('tracker-modal').style.display = 'flex';
+}
+
+function closeTracker() {
+  document.getElementById('tracker-modal').style.display = 'none';
+}
+
+function saveApplication() {
+  const status = document.getElementById('app-status').value;
+  const email = document.getElementById('app-email').value;
+  const notes = document.getElementById('app-notes').value;
+  fetch(`/jobs/${currentJobId}/apply/`, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken')},
+    body: JSON.stringify({status, email, notes})
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.success) closeTracker();
+  });
+}
+
+document.getElementById('app-status').addEventListener('change', function() {
+  document.getElementById('followup-field').style.display = 
+    this.value === 'follow_up' ? 'block' : 'none';
+});
+
+document.getElementById('tracker-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeTracker();
+});
+
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== '') {
+    const cookies = document.cookie.split(';');
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i].trim();
+      if (cookie.substring(0, name.length + 1) === (name + '=')) {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+}
+</script>
+{% endif %}
+
+{% endblock %}

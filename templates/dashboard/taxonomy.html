@@ -1,0 +1,60 @@
+{% extends 'dashboard/base.html' %}
+{% block title %}— Taxonomy{% endblock %}
+{% block page_title %}Living Job Taxonomy{% endblock %}
+
+{% block content %}
+<div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap:16px;">
+
+  <div class="panel">
+    <div class="panel-header" style="color:var(--green);">✅ Established Categories</div>
+    <div class="panel-body">
+      {% for t in established %}
+      <div class="list-item">
+        <div class="list-main">
+          <div class="list-title">{{ t.name }}</div>
+          <div class="list-sub">{{ t.job_count }} jobs · {{ t.weekly_growth }}% weekly growth</div>
+        </div>
+        <span class="badge badge-green">{{ t.confidence_score }}%</span>
+      </div>
+      {% empty %}
+      <div class="empty">None yet.</div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-header" style="color:var(--amber);">📈 Emerging Categories</div>
+    <div class="panel-body">
+      {% for t in emerging %}
+      <div class="list-item">
+        <div class="list-main">
+          <div class="list-title">{{ t.name }}</div>
+          <div class="list-sub">{{ t.job_count }} jobs · {{ t.weekly_growth }}% weekly growth</div>
+        </div>
+        <span class="badge badge-amber">{{ t.confidence_score }}%</span>
+      </div>
+      {% empty %}
+      <div class="empty">None yet.</div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-header" style="color:var(--purple);">🧪 Hypothesis</div>
+    <div class="panel-body">
+      {% for t in hypothesis %}
+      <div class="list-item">
+        <div class="list-main">
+          <div class="list-title">{{ t.name }}</div>
+          <div class="list-sub">{{ t.job_count }} jobs · confidence {{ t.confidence_score }}%</div>
+        </div>
+        <span class="badge" style="background:#2a1f45;color:var(--purple);">{{ t.confidence_score }}%</span>
+      </div>
+      {% empty %}
+      <div class="empty">No hypotheses yet.</div>
+      {% endfor %}
+    </div>
+  </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,44 @@
+{% extends 'dashboard/base.html' %}
+{% block title %}— Crawl Logs{% endblock %}
+{% block page_title %}Crawl Logs{% endblock %}
+
+{% block content %}
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>URL</th>
+        <th>Company</th>
+        <th>Status</th>
+        <th>HTTP</th>
+        <th>Protection</th>
+        <th>Jobs Found</th>
+        <th>Time</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for log in logs %}
+      <tr>
+        <td style="font-size:11px; color:var(--text2); max-width:250px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">{{ log.url }}</td>
+        <td style="font-size:12px;">{{ log.company.name|default:"—" }}</td>
+        <td>
+          {% if log.status == 'success' %}<span class="badge badge-green">✅ Success</span>
+          {% elif log.status == 'blocked' %}<span class="badge" style="background:#2d1a1a;color:var(--red);">🚫 Blocked</span>
+          {% elif log.status == 'captcha' %}<span class="badge badge-amber">🤖 CAPTCHA</span>
+          {% elif log.status == 'error' %}<span class="badge" style="background:#2d1a1a;color:var(--red);">❌ Error</span>
+          {% else %}<span class="badge">{{ log.status }}</span>{% endif %}
+        </td>
+        <td style="font-size:12px; color:var(--text2);">{{ log.http_code|default:"—" }}</td>
+        <td style="font-size:12px; color:var(--text2);">
+          {% if log.protection_level %}Level {{ log.protection_level }}{% else %}—{% endif %}
+        </td>
+        <td style="font-size:12px; color:var(--green);">{{ log.jobs_found }}</td>
+        <td style="font-size:11px; color:var(--text2);">{{ log.crawled_at|date:"M d H:i" }}</td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="7" style="text-align:center; color:var(--text2); padding:40px;">No crawls run yet.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
