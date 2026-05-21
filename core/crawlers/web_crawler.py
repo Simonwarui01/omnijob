@@ -471,63 +471,30 @@ def extract_jobs_with_keywords(url, soup, page_text, lang='en'):
 
 def extract_jobs_with_claude(url, page_text, lang='en'):
     try:
-        from google import genai
+        import anthropic
         import os
         import json
 
-        client = genai.Client(api_key=os.getenv('GEMINI_API_KEY'))
-        text_sample = page_text[:3000]
+        client = anthropic.Anthropic(api_key=os.getenv('ANTHROPIC_API_KEY'))
+        text_sample = page_text[:4000]
 
-        prompt = f"""You are analyzing a webpage to find task-based remote freelance job opportunities FOR ENGLISH SPEAKERS ONLY.
-
+        message = client.messages.create(
+            model="claude-haiku-4-5",
+            max_tokens=1024,
+            messages=[{
+                "role": "user",
+                "content": f"""Find task-based remote freelance jobs for English speakers on this page.
 URL: {url}
-Page content (may be in any language):
-{text_sample}
+Content: {text_sample}
 
-Find job postings where ALL of these are true:
-1. The WORK itself requires English language ability — this includes transcribing English audio, annotating English text, English voice recording, English content moderation, English AI training, English quality rating, online surveys in English, English user research/testing, English proofreading, English tutoring, English beta testing, English social media evaluation, English focus groups, or ANY other task-based work requiring English
-2. It is task-based freelance work (NOT a career/professional role)
-3. It can be done remotely from anywhere
-4. This page is from the ACTUAL EMPLOYER — not a blog, article, or list of companies
-5. There is a clear way to apply
+Return JSON array only:
+[{{"title":"job title","description":"what work involves","apply_url":"link","job_type":"transcription|annotation|ai_training|translation|voice|content_moderation|qa|survey|research|tutoring|testing|proofreading|other","geo_tier":0,"posting_language":"{lang}","work_language":"en","company_name":"company","is_relevant":true,"english_work_confirmed":true}}]
 
-CRITICAL LANGUAGE RULE:
-- If the job needs any non-English language speakers → is_relevant=false
-- If the language of work is unclear → is_relevant=false, english_work_confirmed=false
-- ONLY if the work clearly needs English speakers → is_relevant=true, english_work_confirmed=true
-
-STRICT RULES — set is_relevant=false if:
-- Page is an article listing multiple companies
-- Page is a blog post or review site
-- No direct application link exists
-- Work language is not English
-
-Always translate job titles to English in your response.
-
-Return JSON array only, no other text:
-[
-  {{
-    "title": "job title in English",
-    "description": "what the work involves",
-    "apply_url": "direct careers page or ATS link",
-    "job_type": "transcription|annotation|ai_training|translation|voice|content_moderation|qa|survey|research|tutoring|testing|proofreading|other",
-    "geo_tier": 0,
-    "posting_language": "language code e.g. sv/de/fr/en",
-    "work_language": "en",
-    "company_name": "company name",
-    "is_relevant": true,
-    "english_work_confirmed": true
-  }}
-]
-
-If NO confirmed English work opportunities found, return: []"""
-
-        response = client.models.generate_content(
-            model='gemini-2.0-flash',
-            contents=prompt
+If no relevant jobs: []"""
+            }]
         )
-        response_text = response.text.strip()
 
+        response_text = message.content[0].text.strip()
         if '```json' in response_text:
             response_text = response_text.split('```json')[1].split('```')[0].strip()
         elif '```' in response_text:
@@ -537,8 +504,9 @@ If NO confirmed English work opportunities found, return: []"""
         return jobs if isinstance(jobs, list) else []
 
     except Exception as e:
-        logger.error(f'Gemini extraction error for {url}: {e}')
+        logger.error(f'Claude extraction error for {url}: {e}')
         return []
+
 
 def crawl_website(url, lang='en'):
     """
