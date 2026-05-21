@@ -483,14 +483,30 @@ def extract_jobs_with_claude(url, page_text, lang='en'):
             max_tokens=1024,
             messages=[{
                 "role": "user",
-                "content": f"""Find task-based remote freelance jobs for English speakers on this page.
+                "content": f"""Analyze this webpage for task-based remote freelance jobs for English speakers.
+
 URL: {url}
 Content: {text_sample}
 
-Return JSON array only:
-[{{"title":"job title","description":"what work involves","apply_url":"link","job_type":"transcription|annotation|ai_training|translation|voice|content_moderation|qa|survey|research|tutoring|testing|proofreading|other","geo_tier":0,"posting_language":"{lang}","work_language":"en","company_name":"company","is_relevant":true,"english_work_confirmed":true}}]
+Return [] immediately if ANY of these are true:
+- This is a blog, article, or list of companies/websites
+- This is a software/tool product page (transcription software, survey tools, etc.)
+- This is a job aggregator listing multiple companies
+- This is a search results page or directory
+- No direct application link exists on this page
+- The actual work requires a non-English language
+- This is not the actual employer directly hiring
 
-If no relevant jobs: []"""
+Only return jobs if ALL are true:
+- This IS the actual employer company website
+- They ARE directly hiring freelancers/contractors right now
+- The work requires English language ability
+- There IS a clear apply/signup link on this page
+
+Return JSON array only, no other text:
+[{{"title":"specific job title","description":"what the work involves","apply_url":"direct application link","job_type":"transcription|annotation|ai_training|translation|voice|content_moderation|qa|survey|research|tutoring|testing|proofreading|other","geo_tier":0,"posting_language":"{lang}","work_language":"en","company_name":"actual company name","is_relevant":true,"english_work_confirmed":true}}]
+
+If not a direct employer hiring page: []"""
             }]
         )
 
@@ -652,6 +668,25 @@ def crawl_website(url, lang='en'):
             'in this guide',
             'jump to section',
             'table of contents',
+            'here are the best',
+            'here are some',
+            'top websites',
+            'best websites',
+            'best platforms',
+            'list of sites',
+            '10 best',
+            '15 best',
+            '20 best',
+            'how to make money',
+            'ways to make money',
+            'side hustle',
+            'passive income',
+            'おすすめ',
+            '推荐网站',
+            '추천 사이트',
+            'أفضل مواقع',
+            'meilleurs sites',
+            'beste websites',
         ]
         is_article = any(signal in page_lower for signal in ARTICLE_SIGNALS)
         if is_article:
