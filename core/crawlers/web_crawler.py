@@ -691,7 +691,7 @@ def crawl_website(url, lang='en'):
             return 0
 
         # Use FREE keyword scraper — no API cost
-        jobs = extract_jobs_with_keywords(url, soup, page_text, lang)
+        jobs = extract_jobs_with_claude(url, page_text, lang)
 
         if not jobs:
             return 0
