@@ -659,6 +659,13 @@ def crawl_website(url, lang='en'):
             return 0
 
         # Use FREE keyword scraper — no API cost
+        # Rate limit Claude — max 150 calls/day to stay under $5/month
+        from django.core.cache import cache
+        daily_calls = cache.get('claude_daily_calls', 0)
+        if daily_calls >= 150:
+            logger.debug(f'Claude daily limit reached — skipping {url}')
+            return 0
+        cache.set('claude_daily_calls', daily_calls + 1, timeout=86400)
         jobs = extract_jobs_with_claude(url, page_text, lang)
 
         if not jobs:
