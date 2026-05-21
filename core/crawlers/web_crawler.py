@@ -663,10 +663,11 @@ def crawl_website(url, lang='en'):
         from django.core.cache import cache
         daily_calls = cache.get('claude_daily_calls', 0)
         if daily_calls >= 150:
-            logger.debug(f'Claude daily limit reached — skipping {url}')
-            return 0
-        cache.set('claude_daily_calls', daily_calls + 1, timeout=86400)
-        jobs = extract_jobs_with_claude(url, page_text, lang)
+            logger.debug(f'Claude daily limit reached — using keyword scraper for {url}')
+            jobs = extract_jobs_with_keywords(url, soup, page_text, lang)
+        else:
+            cache.set('claude_daily_calls', daily_calls + 1, timeout=86400)
+            jobs = extract_jobs_with_claude(url, page_text, lang)
 
         if not jobs:
             return 0
