@@ -1,6 +1,5 @@
 #!/bin/bash
 pip install -r requirements.txt
-python manage.py collectstatic --noinput
 python manage.py migrate --noinput
 celery -A config worker --loglevel=info --concurrency=8 -n worker1@%h &
 celery -A config worker --loglevel=info --concurrency=8 -n worker2@%h &
