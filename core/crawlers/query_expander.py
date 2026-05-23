@@ -16,7 +16,7 @@ def expand_queries_from_new_jobs():
     # Get jobs found in last 24 hours
     from datetime import timedelta
     recent_jobs = Job.objects.filter(
-        first_seen__gte=timezone.now() - timedelta(hours=24)
+        first_seen__gte=timezone.now() - timedelta(days=30)
     ).select_related('company')
 
     if not recent_jobs.exists():
