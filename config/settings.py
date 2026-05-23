@@ -87,21 +87,34 @@ LOGIN_REDIRECT_URL = '/'
 
 # Celery configuration
 REDIS_URL = os.getenv('REDIS_URL', 'redis://localhost:6379/0')
-CELERY_BROKER_URL = REDIS_URL
-CELERY_RESULT_BACKEND = REDIS_URL
-CELERY_BROKER_TRANSPORT_OPTIONS = {
-    'visibility_timeout': 3600,
-    'socket_keepalive': True,
-    'skip_full_coverage_check': True,
-}
-if REDIS_URL.startswith('rediss://'):
+
+# Azure Managed Redis uses port 10000 with different auth format
+if 'redis.azure.net' in REDIS_URL:
     import ssl
-    CELERY_BROKER_USE_SSL = {
+    from urllib.parse import urlparse
+    parsed = urlparse(REDIS_URL)
+    CELERY_BROKER_URL = REDIS_URL
+    CELERY_RESULT_BACKEND = REDIS_URL
+    CELERY_BROKER_USE_SSL = {'ssl_cert_reqs': ssl.CERT_NONE}
+    CELERY_REDIS_BACKEND_USE_SSL = {'ssl_cert_reqs': ssl.CERT_NONE}
+    CELERY_BROKER_TRANSPORT_OPTIONS = {
+        'visibility_timeout': 3600,
+        'socket_keepalive': True,
+        'skip_full_coverage_check': True,
         'ssl_cert_reqs': ssl.CERT_NONE,
     }
-    CELERY_REDIS_BACKEND_USE_SSL = {
-        'ssl_cert_reqs': ssl.CERT_NONE,
+else:
+    CELERY_BROKER_URL = REDIS_URL
+    CELERY_RESULT_BACKEND = REDIS_URL
+    CELERY_BROKER_TRANSPORT_OPTIONS = {
+        'visibility_timeout': 3600,
+        'socket_keepalive': True,
+        'skip_full_coverage_check': True,
     }
+    if REDIS_URL.startswith('rediss://'):
+        import ssl
+        CELERY_BROKER_USE_SSL = {'ssl_cert_reqs': ssl.CERT_NONE}
+        CELERY_REDIS_BACKEND_USE_SSL = {'ssl_cert_reqs': ssl.CERT_NONE}
 CELERY_TIMEZONE = 'Africa/Nairobi'
 CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
 
