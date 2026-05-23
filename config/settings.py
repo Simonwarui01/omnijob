@@ -86,15 +86,14 @@ LOGIN_URL = '/admin/login/'
 LOGIN_REDIRECT_URL = '/'
 
 # Celery configuration
-REDIS_URL = os.getenv('REDIS_URL', 'redis://localhost:6379/0')
+REDIS_HOST = os.getenv('REDIS_HOST', 'localhost')
+REDIS_PORT = os.getenv('REDIS_PORT', '6379')
+REDIS_PASSWORD = os.getenv('REDIS_PASSWORD', '')
 
-# Azure Managed Redis uses port 10000 with different auth format
-if 'redis.azure.net' in REDIS_URL:
+if REDIS_HOST.endswith('redis.azure.net'):
     import ssl
-    from urllib.parse import urlparse
-    parsed = urlparse(REDIS_URL)
-    CELERY_BROKER_URL = REDIS_URL
-    CELERY_RESULT_BACKEND = REDIS_URL
+    CELERY_BROKER_URL = f"rediss://:{REDIS_PASSWORD}@{REDIS_HOST}:{REDIS_PORT}"
+    CELERY_RESULT_BACKEND = f"rediss://:{REDIS_PASSWORD}@{REDIS_HOST}:{REDIS_PORT}"
     CELERY_BROKER_USE_SSL = {'ssl_cert_reqs': ssl.CERT_NONE}
     CELERY_REDIS_BACKEND_USE_SSL = {'ssl_cert_reqs': ssl.CERT_NONE}
     CELERY_BROKER_TRANSPORT_OPTIONS = {
@@ -104,29 +103,19 @@ if 'redis.azure.net' in REDIS_URL:
         'ssl_cert_reqs': ssl.CERT_NONE,
     }
 else:
-    CELERY_BROKER_URL = REDIS_URL
-    CELERY_RESULT_BACKEND = REDIS_URL
-    CELERY_BROKER_TRANSPORT_OPTIONS = {
-        'visibility_timeout': 3600,
-        'socket_keepalive': True,
-        'skip_full_coverage_check': True,
-    }
-    if REDIS_URL.startswith('rediss://'):
-        import ssl
-        CELERY_BROKER_USE_SSL = {'ssl_cert_reqs': ssl.CERT_NONE}
-        CELERY_REDIS_BACKEND_USE_SSL = {'ssl_cert_reqs': ssl.CERT_NONE}
+    CELERY_BROKER_URL = f"redis://:{REDIS_PASSWORD}@{REDIS_HOST}:{REDIS_PORT}"
+    CELERY_RESULT_BACKEND = CELERY_BROKER_URL
+    CELERY_BROKER_TRANSPORT_OPTIONS = {'visibility_timeout': 3600}
+
+REDIS_URL = CELERY_BROKER_URL
 CELERY_TIMEZONE = 'Africa/Nairobi'
 CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
-
-# Add to INSTALLED_APPS
 
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.redis.RedisCache',
-        'LOCATION': os.getenv('REDIS_URL', 'redis://localhost:6379/1'),
-        'OPTIONS': {
-            'ssl_cert_reqs': None,
-        }
+        'LOCATION': CELERY_BROKER_URL,
+        'OPTIONS': {'ssl_cert_reqs': None}
     }
 }
 
