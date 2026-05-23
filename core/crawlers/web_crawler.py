@@ -480,7 +480,7 @@ def extract_jobs_with_claude(url, page_text, lang='en'):
 
         message = client.messages.create(
             model="claude-haiku-4-5",
-            max_tokens=1024,
+            max_tokens=512,
             messages=[{
                 "role": "user",
                 "content": f"""Analyze this webpage for task-based remote freelance jobs for English speakers.
@@ -697,7 +697,7 @@ def crawl_website(url, lang='en'):
         # Rate limit Claude — max 150 calls/day to stay under $5/month
         from django.core.cache import cache
         daily_calls = cache.get('claude_daily_calls', 0)
-        if daily_calls >= 150:
+        if daily_calls >= 50:
             logger.debug(f'Claude daily limit reached — using keyword scraper for {url}')
             jobs = extract_jobs_with_keywords(url, soup, page_text, lang)
         else:
