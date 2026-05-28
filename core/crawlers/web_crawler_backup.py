@@ -29,297 +29,157 @@ LANG_HEADERS = {
     'ar': 'ar-SA,ar;q=0.9,en;q=0.8',
 }
 
-# ============================================================
-# SEARCH QUERIES — Transcription + AI Annotation ONLY
-# Deep search across 12 languages, multiple angles per type
-# Goal: find UNKNOWN companies hiring worldwide
-# ============================================================
+# Search queries in many languages
+# Each finds companies posting task-based English work
 SEARCH_QUERIES = [
-
-    # ── ENGLISH TRANSCRIPTION ──────────────────────────────
-    ('en', 'hiring english transcribers remote freelance apply now'),
-    ('en', 'english transcription work from home apply'),
-    ('en', 'freelance transcriptionist remote job opening apply'),
-    ('en', 'transcription company hiring remote workers apply'),
-    ('en', 'audio transcription remote freelance worldwide hiring'),
-    ('en', 'video transcription remote freelance hiring apply'),
-    ('en', 'medical transcription remote freelance hiring'),
-    ('en', 'legal transcription remote freelance hiring'),
-    ('en', 'academic transcription remote freelance hiring'),
-    ('en', 'interview transcription remote freelance hiring'),
-    ('en', 'podcast transcription remote freelance hiring'),
-    ('en', 'court transcription remote freelance hiring'),
-    ('en', 'transcription platform freelancers signup worldwide'),
-    ('en', 'captioning subtitling remote freelance hiring apply'),
-    ('en', 'closed captions remote freelance transcriber hiring'),
-    ('en', 'live captioning remote freelance hiring apply'),
-
-    # ── FRENCH TRANSCRIPTION ───────────────────────────────
-    ('fr', 'recrutement transcripteurs français télétravail postuler'),
-    ('fr', 'emploi transcription français freelance postuler maintenant'),
-    ('fr', 'transcripteur freelance français télétravail embauche'),
-    ('fr', 'société transcription recrute télétravailleurs postuler'),
-    ('fr', 'transcription audio français freelance recrutement'),
-    ('fr', 'transcription médicale français freelance recrutement'),
-    ('fr', 'transcription juridique français freelance recrutement'),
-    ('fr', 'sous-titrage français freelance recrutement postuler'),
-    ('fr', 'plateforme transcription freelance inscription worldwide'),
-
-    # ── ENGLISH AI TRAINING / ANNOTATION ───────────────────
-    ('en', 'hiring english data annotators remote apply now'),
-    ('en', 'AI training data labeling english remote freelance apply'),
-    ('en', 'human feedback AI english remote freelance hiring'),
-    ('en', 'RLHF english speakers remote freelance hiring apply'),
-    ('en', 'AI annotation remote freelance worldwide hiring apply'),
-    ('en', 'data labeling company hiring remote annotators apply'),
-    ('en', 'machine learning data collection remote freelance hiring'),
-    ('en', 'image annotation remote freelance worldwide hiring apply'),
-    ('en', 'text annotation remote freelance worldwide hiring apply'),
-    ('en', 'audio annotation remote freelance worldwide hiring apply'),
-    ('en', 'video annotation remote freelance worldwide hiring apply'),
-    ('en', 'content annotation platform freelancers signup worldwide'),
-    ('en', 'AI model training remote freelance contributors hiring'),
-    ('en', 'prompt evaluation remote freelance english hiring apply'),
-    ('en', 'search quality rater remote freelance hiring apply'),
-    ('en', 'internet assessor remote freelance hiring apply'),
-    ('en', 'AI safety researcher remote freelance hiring apply'),
-    ('en', 'LLM evaluation remote freelance english hiring apply'),
-    ('en', 'named entity recognition remote freelance hiring apply'),
-    ('en', 'sentiment analysis remote freelance hiring apply'),
-    ('en', 'speech recognition training remote freelance hiring'),
-    ('en', 'natural language processing data collection hiring remote'),
-
-    # ── FRENCH AI TRAINING / ANNOTATION ────────────────────
-    ('fr', 'annotation données IA français télétravail postuler'),
-    ('fr', 'formation IA français freelance recrutement postuler'),
-    ('fr', 'annotateur données français télétravail embauche'),
-    ('fr', 'étiquetage données IA français freelance recrutement'),
-    ('fr', 'évaluation modèle IA français freelance recrutement'),
-    ('fr', 'collecte données IA français télétravail recrutement'),
-    ('fr', 'annotation audio français freelance recrutement postuler'),
-    ('fr', 'retour humain IA français freelance recrutement'),
-    ('fr', 'évaluateur qualité IA français freelance postuler'),
-
-    # ── GERMAN ─────────────────────────────────────────────
-    ('de', 'Transkription Englisch freiberuflich weltweit bewerben Stelle'),
-    ('de', 'Transkription Französisch freiberuflich weltweit bewerben'),
-    ('de', 'Unternehmen sucht Transkriptoren remote bewerben'),
-    ('de', 'KI Datenerfassung Annotation freiberuflich bewerben weltweit'),
-    ('de', 'Datenannotation KI Training freiberuflich bewerben'),
-    ('de', 'Sprachdaten Sammlung freiberuflich remote bewerben'),
-    ('de', 'Audio Transkription freiberuflich remote Stelle bewerben'),
-    ('de', 'KI Training freiberuflich remote Stelle bewerben'),
-
-    # ── DUTCH ──────────────────────────────────────────────
-    ('nl', 'transcriptie Engels freelance thuiswerk solliciteren vacature'),
-    ('nl', 'transcriptie Frans freelance thuiswerk solliciteren'),
-    ('nl', 'dataannotatie AI freelance thuiswerk solliciteren vacature'),
-    ('nl', 'AI training data freelance thuiswerk solliciteren'),
-    ('nl', 'bedrijf zoekt transcriptionist remote solliciteren'),
-    ('nl', 'spraakherkenning data freelance remote solliciteren'),
-
-    # ── JAPANESE ───────────────────────────────────────────
-    ('ja', '英語 文字起こし リモート 採用 フリーランス 応募'),
-    ('ja', 'フランス語 文字起こし リモート 採用 フリーランス 応募'),
-    ('ja', 'AIデータアノテーション リモート 採用 フリーランス 応募'),
-    ('ja', 'データラベリング AI リモートワーク 採用 応募'),
-    ('ja', '音声データ収集 リモート フリーランス 採用 応募'),
-    ('ja', '機械学習 データ収集 リモート フリーランス 採用'),
-
-    # ── KOREAN ─────────────────────────────────────────────
-    ('ko', '영어 전사 재택근무 프리랜서 채용 지원'),
-    ('ko', '프랑스어 전사 재택근무 프리랜서 채용'),
-    ('ko', 'AI 데이터 어노테이션 재택 프리랜서 채용 지원'),
-    ('ko', '데이터 라벨링 AI 재택 프리랜서 채용'),
-    ('ko', '음성 데이터 수집 재택 프리랜서 채용'),
-
-    # ── CHINESE ────────────────────────────────────────────
-    ('zh', '英语 转录 远程 招聘 自由职业 申请'),
-    ('zh', '法语 转录 远程 招聘 自由职业'),
-    ('zh', 'AI 数据标注 远程 招聘 自由职业 申请'),
-    ('zh', '数据标注 机器学习 远程 招聘 申请'),
-    ('zh', '语音数据采集 远程 自由职业 招聘'),
-
-    # ── SPANISH ────────────────────────────────────────────
-    ('es', 'empresa contrata transcriptores inglés freelance remoto aplicar'),
-    ('es', 'empresa contrata transcriptores francés freelance remoto'),
-    ('es', 'anotación datos IA inglés teletrabajo freelance aplicar'),
-    ('es', 'etiquetado datos IA remoto freelance contratando aplicar'),
-    ('es', 'entrenamiento IA inglés freelance remoto aplicar'),
-
-    # ── PORTUGUESE ─────────────────────────────────────────
-    ('pt', 'empresa contrata transcritores inglês remoto freelance candidatar'),
-    ('pt', 'empresa contrata transcritores francês remoto freelance'),
-    ('pt', 'anotação dados IA inglês teletrabalho freelance candidatar'),
-    ('pt', 'rotulagem dados IA remoto freelance candidatar'),
-
-    # ── ITALIAN ────────────────────────────────────────────
-    ('it', 'azienda cerca trascrittori inglese remoto freelance candidarsi'),
-    ('it', 'annotazione dati IA inglese telelavoro freelance candidarsi'),
-    ('it', 'etichettatura dati IA remoto freelance candidarsi'),
-
-    # ── SWEDISH ────────────────────────────────────────────
-    ('sv', 'företag söker transkribenter engelska distansarbete ansökan'),
-    ('sv', 'AI dataannotering distansjobb freelance engelska ansökan'),
-    ('sv', 'dataetiketting AI distansarbete freelance ansökan'),
-
-    # ── POLISH ─────────────────────────────────────────────
-    ('pl', 'firma zatrudnia transkrybentów angielski zdalnie freelance aplikuj'),
-    ('pl', 'adnotacja danych AI angielski praca zdalna freelance aplikuj'),
-
-    # ── ARABIC ─────────────────────────────────────────────
-    ('ar', 'شركة تبحث عن متفرغين للنسخ الإنجليزي عن بعد تقديم'),
-    ('ar', 'تعليق بيانات الذكاء الاصطناعي عن بعد تقديم'),
-
-    # ── DEEP NICHE ENGLISH (page 2+ territory) ─────────────
-    ('en', 'transcription startup hiring remote workers worldwide'),
-    ('en', 'new transcription company hiring freelancers apply'),
-    ('en', 'transcription service provider hiring remote transcribers'),
-    ('en', 'annotation startup hiring remote workers worldwide'),
-    ('en', 'new AI company hiring data annotators remote apply'),
-    ('en', 'AI data company hiring remote annotators worldwide'),
-    ('en', 'NLP company hiring remote data collectors apply'),
-    ('en', 'speech AI company hiring transcribers remote apply'),
-    ('en', 'computer vision company hiring annotators remote apply'),
-    ('en', 'autonomous vehicle data annotation remote hiring apply'),
-    ('en', 'healthcare AI data annotation remote hiring apply'),
-    ('en', 'legal AI data annotation remote hiring apply'),
-    ('en', 'financial AI data annotation remote hiring apply'),
-    ('en', 'ecommerce product annotation remote freelance hiring'),
-    ('en', 'social media content annotation remote freelance hiring'),
-    ('en', 'multilingual transcription remote freelance hiring apply'),
-    ('en', 'bilingual transcriber english french remote hiring apply'),
-    ('en', 'freelance transcription signup platform worldwide apply'),
-    ('en', 'crowdsource transcription platform hiring apply'),
-    ('en', 'remote transcription contractor hiring apply worldwide'),
+    # English
+    ('en', 'hiring english transcribers remote worldwide freelance'),
+    ('en', 'hiring english data annotators remote worldwide'),
+    ('en', 'english content moderators remote freelance worldwide'),
+    ('en', 'english voice recording remote freelance worldwide'),
+    ('en', 'english quality raters remote freelance worldwide'),
+    ('en', 'english search evaluators remote freelance worldwide'),
+    ('en', 'english AI trainers remote freelance worldwide'),
+    ('en', 'english subtitle captioners remote freelance worldwide'),
+    ('en', 'remote english transcription jobs freelance apply'),
+    ('en', 'remote english annotation jobs freelance apply'),
+    # German — companies in Germany/Austria/Switzerland hiring English speakers
+    ('de', 'Englisch Transkription Stelle freiberuflich weltweit bewerben'),
+    ('de', 'Englisch Annotation Stelle freiberuflich weltweit bewerben'),
+    ('de', 'Englisch Sprachaufnahme freiberuflich weltweit bewerben'),
+    ('de', 'Englisch Untertitelung freiberuflich weltweit bewerben'),
+    ('de', 'Englisch Qualitätsbewertung freiberuflich weltweit bewerben'),
+    ('de', 'English speakers annotation job remote worldwide apply'),
+    ('de', 'Englisch KI Training Daten freiberuflich weltweit'),
+    # French
+    ('fr', 'transcription anglais freelance monde entier postuler'),
+    ('fr', 'annotation données anglais télétravail monde entier'),
+    ('fr', 'modération contenu anglais freelance monde entier'),
+    ('fr', 'évaluation IA anglais freelance monde entier postuler'),
+    ('fr', 'enregistrement vocal anglais freelance monde entier'),
+    # Dutch — Netherlands, Belgium
+    ('nl', 'engelse transcriptie freelance wereldwijd solliciteren'),
+    ('nl', 'engelse data annotatie thuiswerk wereldwijd solliciteren'),
+    ('nl', 'engelse ondertiteling freelance wereldwijd solliciteren'),
+    ('nl', 'engelse contentbeoordeling freelance wereldwijd'),
+    # Swedish
+    ('sv', 'engelsk transkribering distansarbete världen freelance ansökan'),
+    ('sv', 'engelsk dataannotering distansjobb världen ansökan'),
+    ('sv', 'engelsk röstinspelning distansarbete världen ansökan'),
+    # Norwegian
+    ('no', 'engelsk transkripsjon hjemmekontor verden freelance søknad'),
+    ('no', 'engelsk dataannotering fjernarbeid verden søknad'),
+    # Finnish
+    ('fi', 'englannin transkriptio etätyö maailmanlaajuinen freelance hakemus'),
+    ('fi', 'englannin data-annotointi kotityö maailmanlaajuinen hakemus'),
+    # Danish — missing before, now added
+    ('da', 'engelsk transskription freelance verdensomspændende ansøg'),
+    ('da', 'engelsk dataannotering hjemmearbejde verdensomspændende'),
+    ('da', 'engelsk indholdsmoderator freelance verdensomspændende'),
+    # Japanese — many Japanese companies need English annotators
+    ('ja', '英語 文字起こし リモートワーク 世界中 フリーランス 応募'),
+    ('ja', '英語 アノテーション 在宅勤務 世界中 フリーランス 応募'),
+    ('ja', '英語 音声録音 在宅 フリーランス 応募'),
+    ('ja', '英語ネイティブ AIトレーニング リモート 応募'),
+    # Korean
+    ('ko', '영어 전사 재택근무 전세계 프리랜서 지원'),
+    ('ko', '영어 어노테이션 재택근무 전세계 지원'),
+    ('ko', '영어 원어민 AI 훈련 원격 지원'),
+    # Polish
+    ('pl', 'transkrypcja angielski freelance cały świat praca zdalna aplikuj'),
+    ('pl', 'adnotacja angielski praca zdalna cały świat aplikuj'),
+    # Italian
+    ('it', 'trascrizione inglese freelance tutto il mondo candidati'),
+    ('it', 'annotazione dati inglese telelavoro tutto il mondo'),
+    # Spanish
+    ('es', 'transcripción inglés freelance todo el mundo aplicar'),
+    ('es', 'anotación datos inglés teletrabajo todo el mundo'),
+    # Portuguese
+    ('pt', 'transcrição inglês freelance mundo todo candidatar'),
+    ('pt', 'anotação dados inglês teletrabalho mundo todo'),
+    # Chinese
+    ('zh', '英语 转录 远程 全球 自由职业 申请'),
+    ('zh', '英语 数据标注 远程 全球 申请'),
+    # Arabic
+    ('ar', 'نسخ إنجليزي عن بعد عالمي مستقل تقديم'),
+    ('ar', 'تعليق بيانات إنجليزي عمل عن بعد عالمي تقديم'),
+    # Missing categories — surveys, research, testing
+    ('en', 'paid online surveys english remote worldwide apply'),
+    ('en', 'research participant english remote paid study'),
+    ('en', 'user testing remote english paid worldwide'),
+    ('en', 'beta testing remote english paid worldwide'),
+    ('en', 'english tutor online remote worldwide apply'),
+    ('en', 'proofreading remote english freelance worldwide'),
+    ('en', 'copy editing remote english freelance worldwide'),
+    ('en', 'social media evaluator remote english worldwide'),
+    ('en', 'online focus group english remote paid'),
+    ('en', 'mystery shopping remote english worldwide'),
+    ('en', 'chat support english remote freelance worldwide'),
+    ('en', 'english language evaluator remote worldwide'),
+    ('de', 'Online Umfrage bezahlt Englisch weltweit bewerben'),
+    ('de', 'Nutzertest Englisch freiberuflich weltweit bewerben'),
+    ('fr', 'sondage en ligne anglais payé monde entier postuler'),
+    ('fr', 'test utilisateur anglais freelance monde entier'),
+    ('ja', '英語 オンライン調査 在宅 報酬 応募'),
+    ('ko', '영어 온라인 설문 재택 보수 지원'),
+    ('zh', '英语 在线调查 远程 付费 申请'),
 ]
 
-# ============================================================
-# SKIP DOMAINS — ALL job aggregators, article sites, boards
-# We want DIRECT employer pages ONLY
-# ============================================================
 SKIP_DOMAINS = [
-    # Social media
-    'facebook.com', 'twitter.com', 'x.com', 'youtube.com',
-    'instagram.com', 'tiktok.com', 'pinterest.com', 'snapchat.com',
-    'telegram.org', 'whatsapp.com', 'discord.com', 'slack.com',
-
-    # Professional networks
-    'linkedin.com', 'xing.com', 'viadeo.com',
-
-    # General knowledge
-    'wikipedia.org', 'wikihow.com', 'quora.com', 'reddit.com',
-    'stackexchange.com', 'stackoverflow.com', 'medium.com',
-    'wordpress.com', 'blogspot.com', 'substack.com', 'tumblr.com',
-
-    # E-commerce (not employers)
-    'amazon.com', 'ebay.com', 'etsy.com', 'aliexpress.com',
-    'shopify.com', 'walmart.com',
-
-    # Freelancer MARKETPLACES (people sell skills, not companies hiring)
+    'facebook.com', 'twitter.com', 'youtube.com', 'instagram.com',
+    'linkedin.com', 'wikipedia.org', 'reddit.com', 'tiktok.com',
+    'amazon.com', 'ebay.com', 'etsy.com', 'pinterest.com',
+    'quora.com', 'medium.com', 'wordpress.com', 'blogspot.com',
+    # Freelancer marketplaces — people post skills, not companies posting jobs
     'upwork.com', 'freelancer.com', 'fiverr.com', 'peopleperhour.com',
     'guru.com', 'toptal.com', 'workhoppers.com', 'bark.com',
     'tasker.com', 'airtasker.com', 'servicescape.com',
-    'freelancer.nl', 'werkspot.nl', 'twago.com', 'malt.com',
-    'malt.fr', 'malt.de', 'malt.es', 'malt.nl',
-    'codementor.io', 'truelancer.com', 'workana.com',
-    'freelancemap.com', 'freelancermap.com', 'freelance.de',
-    'freelance.fr', 'freelance.nl', 'freelancer.de',
-    'freelancer.es', 'freelancer.fr', 'freelancer.pt',
-    'freelancer.in', 'freelancer.com.au',
-
-    # MAJOR JOB AGGREGATORS
+    'freelancer.nl', 'werkspot.nl', 'twago.com',
+    # Job aggregators that just list other sites
     'indeed.com', 'glassdoor.com', 'ziprecruiter.com',
     'monster.com', 'careerbuilder.com', 'simplyhired.com',
-    'jooble.org', 'jobrapido.com', 'neuvoo.com', 'talent.com',
-    'snagajob.com', 'dice.com', 'ladders.com', 'salary.com',
-    'payscale.com', 'getwork.com', 'joblist.com',
-
-    # REMOTE JOB BOARDS (aggregators, not employers)
-    'flexjobs.com', 'remote.co', 'remoteok.com', 'remoteok.io',
+    'jooble.org', 'jobrapido.com', 'neuvoo.com',
+    # Article/blog sites — not actual job postings
+    'flexjobs.com', 'remote.co', 'remoteok.com',
     'weworkremotely.com', 'workingnomads.com', 'justremote.co',
-    'remotehub.com', 'virtualvocations.com', 'remoteleaf.com',
-    'remoote.app', 'remote.com', 'remotive.com', 'remotive.io',
-    'jobspresso.co', 'outsourcely.com', 'pangian.com',
-    'nodesk.co', 'authentic-jobs.com', 'dribbble.com',
-    'himalayas.app', 'wellfound.com', 'angel.co',
-    'builtin.com', 'builtinnyc.com', 'builtinla.com',
-    'eurostaffgroup.com', 'eurastaff.com',
-
-    # COUNTRY-SPECIFIC JOB BOARDS
-    # Netherlands/Belgium
-    'thuiswerk.nl', 'thuiswerken.nl', 'thuiswerkvacatures.nl',
-    'thuiswerkweb.nl', 'thuisaanhetwerk.nl', 'werkvanuithuisvacatures.nl',
-    'werkenvanuithuis.nl', 'workingremotely.nl', 'werkenvanuitthuis.nl',
-    'vacaturesite.nl', 'nationale-vacaturebank.nl', 'intermediair.nl',
-    'monsterboard.nl', 'jobbird.com', 'werk.nl', 'jobsonline.nl',
-    'vdab.be', 'actiris.brussels', 'forem.be',
-    'freelance.nl', 'freelancespecialisten.nl', 'freelancefirm.nl',
-    'freelancenetwork.be', 'flexspot.io', 'youngones.com',
-    'startpeople.nl', 'unique.nl', 'tempo-team.nl',
-
-    # Germany/Austria/Switzerland
-    'stepstone.de', 'xing.com', 'kimeta.de', 'heyjobs.co',
-    'de.whatjobs.com', 'karrierex.de', 'jobware.de',
-    'jobbörse.de', 'stellenanzeigen.de', 'jobscout24.de',
-    'meinestadt.de', 'kalaydo.de', 'yourfirm.de',
-    'remotely.de', 'dasauge.de', 'machdudas.de',
-    'jobs.ch', 'jobup.ch', 'jobscout24.ch',
-
-    # Japan
-    'stanby.jp', 'rikunabi.com', 'mynavi.jp', 'doda.jp',
-    'en-japan.com', 'bizreach.jp', 'wantedly.com',
-
-    # Singapore
-    'jobsdb.com', 'jobstreet.com', 'efinancialcareers.sg',
-
-    # France
-    'emploi.fr', 'pole-emploi.fr', 'cadremploi.fr',
-    'regionsjob.com', 'welcometothejungle.com',
-
-    # Spain/Portugal/Brazil
-    'infojobs.net', 'tecnoempleo.com', 'bumeran.com',
-    'catho.com.br', 'vagas.com.br', 'empregos.com.br',
-
-    # UK
-    'reed.co.uk', 'totaljobs.com', 'cv-library.co.uk',
-    'fish4.co.uk', 'jobsite.co.uk',
-
-    # General European
-    'eurojobs.com', 'europeanmobility.eu',
-
-    # ARTICLE/BLOG SITES pretending to be job boards
-    'flexjobs.com', 'rat-race-rebellion.com',
-    'theworkathomewoman.com', 'dreamhomebasedwork.com',
-    'moneypantry.com', 'smartmoneymamas.com',
-    'workathomenoscams.com', 'thecrazycouponer.com',
-    'makealivingwriting.com', 'thepennymatters.com',
-    'singlemamedesperate.com', 'abacityblog.com',
-    'chalized.com', 'harowaka.com', 'contentwriter.pl',
-    'workersonboard.com', 'genaijobs.co',
-    'theworkfromhomequeen.com', 'searchlabz.com',
-    'speechify.com', 'scribejoy.com',
-
-    # ATS platforms (handled by dedicated crawlers)
-    'boards.greenhouse.io', 'jobs.lever.co', 'apply.workable.com',
-    'jobs.ashbyhq.com', 'smartrecruiters.com',
-
-    # Middle East job boards
-    'bayt.com', 'wuzzuf.net', 'forasna.com', 'tanqeeb.com',
-    'akhtaboot.com', 'mihnati.com', 'naukrigulf.com',
+    'remotehub.com', 'virtualvocations.com',
+    'mostaql.com',      # Arabic freelancer marketplace
+    'genaijobs.co',     # job aggregator
+    'appendata.com',    # Appen data portal, not jobs
+    'mercor.io',        # AI hiring platform, not direct employer
+    # Blog and review sites masquerading as job boards
+    'chalized.com',
+    'abacityblog.com',
+    'harowaka.com',
+    '求人ボックス.com',
+    'contentwriter.pl',
+    'topcontent.com',
+    'workersonboard.com',
+    'dreamhomebasedwork.com',
+    'rat-race-rebellion.com',
+    'theworkathomewoman.com',
+    'moneypantry.com',
+    'thecrazycouponer.com',
+    'makealivingwriting.com',
+    'thepennymatters.com',
+    'workathomenoscams.com',
+    'smartmoneymamas.com',
+    'singlemamedesperate.com',
+    'bayt.com',
+    'wuzzuf.net', 
+    'forasna.com',
+    'tanqeeb.com',
+    'akhtaboot.com',
+    'mihnati.com',
+    'naukrigulf.com',
     'gulftalent.com',
-
-    # Payment/finance (not employers)
-    'payoneer.com', 'paypal.com', 'wise.com',
-
-    # Review sites
-    'trustpilot.com', 'g2.com', 'capterra.com', 'sitejabber.com',
-    'glassdoor.com',
-
-    # Misc non-employer
-    'appendata.com', 'mercor.io', 'mostaql.com',
-    'topcontent.com', 'textmaster.com',
+    'saudijobs24.com',
+    'egyjob.net',
+    'alchamel.net',
+    'payoneer.com',
+    'duction.com',
 ]
+
 
 def search_web(query, lang='en', max_results=8):
     """
@@ -349,20 +209,14 @@ def get_proxy():
     return {'http://': proxy_url, 'https://': proxy_url}
 
 
-def search_duckduckgo(query, lang='en', max_results=30, region='wt-wt'):
-    """
-    Searches DuckDuckGo across multiple pages to find unknown companies.
-    Goes deep — not just page 1. Page 1 has Rev/GoTranscript.
-    Pages 2-5 have the unknown companies we actually want.
-    """
+def search_duckduckgo(query, lang='en', max_results=8, region='wt-wt'):
+    """Searches DuckDuckGo with country rotation — finds different results per region."""
     urls = []
-    seen = set()
     try:
         accept_lang = LANG_HEADERS.get(lang, 'en-US,en;q=0.9')
         headers = {**HEADERS, 'Accept-Language': accept_lang}
         proxy = get_proxy()
 
-        # Page 1 — standard search
         r = httpx.get(
             f"https://html.duckduckgo.com/html/?q={query.replace(' ', '+')}&kl={region}",
             headers=headers,
@@ -370,7 +224,7 @@ def search_duckduckgo(query, lang='en', max_results=30, region='wt-wt'):
             timeout=25,
             follow_redirects=True,
         )
-        time.sleep(random.uniform(2, 4))
+        time.sleep(random.uniform(2, 4))  # Longer delay — avoid rate limiting
 
         if r.status_code not in [200, 202]:
             return urls
@@ -379,9 +233,9 @@ def search_duckduckgo(query, lang='en', max_results=30, region='wt-wt'):
         links = soup.find_all('a', class_='result__url')
 
         if not links:
-            return urls
+            return urls  # Blocked — return empty
 
-        for link in links:
+        for link in links[:max_results]:
             raw = link.get('href', '')
             if 'uddg=' in raw:
                 url = unquote(raw.split('uddg=')[1].split('&')[0])
@@ -392,70 +246,16 @@ def search_duckduckgo(query, lang='en', max_results=30, region='wt-wt'):
 
             if not url.startswith('http'):
                 continue
-            if 'duckduckgo.com/y.js' in url:
-                continue
 
             domain = urlparse(url).netloc.lower()
             if any(skip in domain for skip in SKIP_DOMAINS):
                 continue
-            if url not in seen:
-                seen.add(url)
-                urls.append(url)
 
-        # Pages 2-4 — dig deeper for unknown companies
-        # DuckDuckGo uses 's' parameter for pagination (s=30, s=60, s=90)
-        for page_start in [30, 60, 90]:
-            try:
-                time.sleep(random.uniform(3, 5))
-                r2 = httpx.get(
-                    f"https://html.duckduckgo.com/html/?q={query.replace(' ', '+')}&kl={region}&s={page_start}",
-                    headers=headers,
-                    proxy=proxy.get('https://') if proxy else None,
-                    timeout=25,
-                    follow_redirects=True,
-                )
-                if r2.status_code not in [200, 202]:
-                    break
-
-                soup2 = BeautifulSoup(r2.text, 'html.parser')
-                links2 = soup2.find_all('a', class_='result__url')
-                if not links2:
-                    break
-
-                new_found = 0
-                for link in links2:
-                    raw = link.get('href', '')
-                    if 'uddg=' in raw:
-                        url = unquote(raw.split('uddg=')[1].split('&')[0])
-                    elif raw.startswith('http'):
-                        url = raw
-                    else:
-                        continue
-
-                    if not url.startswith('http'):
-                        continue
-                    if 'duckduckgo.com/y.js' in url:
-                        continue
-
-                    domain = urlparse(url).netloc.lower()
-                    if any(skip in domain for skip in SKIP_DOMAINS):
-                        continue
-                    if url not in seen:
-                        seen.add(url)
-                        urls.append(url)
-                        new_found += 1
-
-                if new_found == 0:
-                    break  # No new results — stop paginating
-
-            except Exception as e:
-                logger.debug(f'DDG page {page_start} error: {e}')
-                break
+            urls.append(url)
 
     except Exception as e:
         logger.error(f'DDG error: {e}')
 
-    logger.info(f'DDG found {len(urls)} URLs for: {query[:50]}')
     return urls
 
 
@@ -682,37 +482,34 @@ def extract_jobs_with_claude(url, page_text, lang='en'):
             max_tokens=512,
             messages=[{
                 "role": "user",
-                "content": f"""You are analyzing a webpage to find companies DIRECTLY hiring remote freelance transcribers or AI data annotators.
+                "content": f"""Analyze this webpage for task-based remote freelance jobs for English speakers.
 
 URL: {url}
 Content: {text_sample}
 
-Return [] IMMEDIATELY if ANY of these are true:
-- This is a blog, article, guide, or list ("10 best...", "how to find...", "top sites...")
-- This is a job aggregator or job board listing multiple companies
-- This is a freelancer marketplace (upwork, fiverr, malt, etc.)
+Return [] immediately if ANY of these are true:
+- This is a blog, article, or list of companies/websites
+- This is a software/tool product page (transcription software, survey tools, etc.)
+- This is a job aggregator listing multiple companies
 - This is a search results page or directory
-- This is a news article or press release
-- This is a software/tool product page (transcription software, AI tools, etc.)
-- The company is NOT directly hiring (they just provide software/tools)
-- No transcription OR data annotation/AI training work is mentioned
-- No application/signup link exists on this page
+- No direct application link exists on this page
+- The actual work requires a non-English language
+- This is not the actual employer directly hiring
 
-Only return jobs if ALL of these are true:
-- This IS the actual employer company website directly hiring
-- They ARE actively hiring remote freelancers RIGHT NOW
-- The work is transcription (audio/video to text) OR AI data annotation/labeling/training
-- Work can be done in English OR French (or both)
+Only return jobs if ALL are true:
+- This IS the actual employer company website
+- They ARE directly hiring freelancers/contractors right now
+- The work requires English language ability
 - There IS a clear apply/signup link on this page
 
 Return JSON array only, no other text:
-[{{"title":"exact job title from page","description":"what the work involves","apply_url":"direct application URL","job_type":"transcription|ai_annotation","work_language":"en|fr|en+fr","posting_language":"{lang}","company_name":"company name","is_relevant":true}}]
+[{{"title":"specific job title","description":"what the work involves","apply_url":"direct application link","job_type":"transcription|annotation|ai_training|translation|voice|content_moderation|qa|survey|research|tutoring|testing|proofreading|other","geo_tier":0,"posting_language":"{lang}","work_language":"en","company_name":"actual company name","is_relevant":true,"english_work_confirmed":true}}]
 
-If not a direct employer hiring transcribers or annotators: []"""
+If not a direct employer hiring page: []"""
             }]
         )
 
-        response_text = message.choices[0].message.content.strip()
+        response_text = message.content[0].text.strip()
         if '```json' in response_text:
             response_text = response_text.split('```json')[1].split('```')[0].strip()
         elif '```' in response_text:
@@ -775,48 +572,74 @@ def crawl_website(url, lang='en'):
         # FREE keyword pre-filter — skip Claude if no relevant keywords found
         # This saves 80% of API costs
         KEYWORDS = [
-            # Transcription
-            'transcri', 'transkri', 'transcriptie', 'transkribering',
-            'transkriptio', 'transkripsjon', 'transcripteur',
-            '文字起こし', '전사', 'caption', 'subtitl', 'sous-titrag',
-            'captioner', 'subtitler', 'transcriptionist',
-            # AI Annotation / Data Labeling
-            'annot', 'label', 'tagger', 'datenanno', 'annotatie',
-            'アノテーション', '어노테이션', '标注', 'adnotacja',
-            'annotateur', 'annotator', 'labeler', 'labeller',
-            'data label', 'data collect', 'image label',
-            'audio label', 'text label', 'video label',
-            # AI Training
+            # Core task types
+            'transcri', 'annot', 'moderat', 'caption', 'subtitl',
+            'voice record', 'data label', 'ai train', 'quality rat',
+            'search evaluat', 'data collect', 'data entry',
+            # Roles often used
+            'freelanc', 'contributor', 'tagger', 'reviewer',
+            'assessor', 'evaluator', 'rater', 'labeler', 'labeller',
+            'linguist', 'interpreter', 'translator', 'proofreader',
+            'transcriptionist', 'captioner', 'subtitler',
+            # AI/ML specific
             'rlhf', 'reinforcement learning', 'human feedback',
-            'ai train', 'ki training', 'AIトレーニング',
-            'prompt eval', 'ai safety', 'model train',
-            'ground truth', 'dataset collection',
-            'quality rat', 'search evaluat', 'internet assessor',
-            'LLM eval', 'NLP data', 'speech recogni',
+            'prompt engineer', 'ai safety', 'content review',
+            'image label', 'audio label', 'text label',
+            'model train', 'dataset', 'ground truth',
             # Work context
-            'hiring', 'apply now', 'job opening', 'we are hiring',
-            'now hiring', 'freelanc', 'contributor', 'remote work',
-            'work from home', 'crowdsourc', 'microtask',
+            'remote work', 'work from home', 'work at home',
+            'hiring', 'apply now', 'job opening', 'we are looking',
+            'part.time', 'part time', 'flexible hours', 'gig work',
+            'crowdsourc', 'microtask', 'task.based',
             # German
-            'transkri', 'untertitel', 'sprachaufnahme',
-            'datenanno', 'freiberuf', 'KI Training',
+            'transkri', 'übersetz', 'untertitel', 'sprachaufnahme',
+            'datenanno', 'qualitätsbew', 'freiberuf', 'heimarbeit',
             # French
-            'transcripteur', 'annotateur', 'sous-titrag',
-            'évaluateur', 'télétravail', 'annotation données',
+            'transcripteur', 'annotateur', 'modérateur', 'traducteur',
+            'sous-titrag', 'évaluateur', 'télétravail', 'freelance',
             # Dutch
-            'transcriptie', 'annotatie', 'ondertitel', 'thuiswerk',
+            'transcriptie', 'annotatie', 'ondertitel', 'vertaler',
+            'thuiswerk', 'vrijgevestig', 'beeldbeschrijv',
+            # Swedish/Norwegian/Danish/Finnish
+            'transkribering', 'annotering', 'undertekst', 'översättare',
+            'transkriptio', 'annotointi', 'etätyö', 'kotityö',
             # Japanese
-            '文字起こし', 'アノテーション', '字幕', '在宅',
-            '音声録音', 'データ収集', 'フリーランス',
+            '文字起こし', 'アノテーション', '字幕', '翻訳', '在宅',
+            '音声録音', 'データ収集', 'フリーランス', 'リモート',
             # Korean
-            '전사', '어노테이션', '자막', '재택', '음성녹음',
+            '전사', '어노테이션', '자막', '번역', '재택',
+            '음성녹음', '데이터수집', '프리랜서',
             # Chinese
-            '转录', '标注', '字幕', '远程', '语音采集',
+            '转录', '标注', '字幕', '翻译', '远程',
+            '语音采集', '数据采集', '自由职业',
             # Arabic
-            'نسخ', 'تعليق', 'عن بعد',
-            # Spanish/Portuguese/Italian
-            'transcripci', 'anotaci', 'subtítul',
-            'transcrição', 'anotação', 'trascrizi', 'annotazi',
+            'نسخ', 'تعليق', 'ترجمة', 'تقييم', 'عن بعد',
+            # Italian/Spanish/Portuguese
+            'trascrizi', 'annotazi', 'sottotitol', 'traduttore',
+            'transcripci', 'anotaci', 'subtítul', 'traductor',
+            'transcrição', 'anotação', 'legendas', 'tradutor',
+            # Survey and research
+            'survey', 'paid survey', 'online survey',
+            'research participant', 'focus group',
+            'user research', 'usability', 'user test',
+            'beta test', 'app test', 'software test',
+            # Tutoring and education
+            'tutor', 'teach english', 'esl', 'language teach',
+            'online teach', 'english teach',
+            # Writing and editing
+            'proofread', 'copy edit', 'copy writing',
+            'content writ', 'blog writ', 'article writ',
+            # Other remote work
+            'mystery shop', 'chat support', 'virtual assist',
+            'data entry', 'online juror', 'mock juror',
+            # German surveys
+            'umfrage', 'nutzertest', 'marktforschung',
+            # French surveys  
+            'sondage', 'enquête', 'test utilisateur',
+            # Japanese surveys
+            'アンケート', 'ユーザーテスト', '調査',
+            # Korean surveys
+            '설문', '사용자테스트', '조사',
         ]
 
         page_lower = page_text.lower()
@@ -890,7 +713,7 @@ def crawl_website(url, lang='en'):
                 continue
             # If work language is explicitly non-English — skip
             work_lang = job_data.get('work_language', 'en')
-            if work_lang not in ['en', 'fr', 'en+fr', 'unknown', '']:
+            if work_lang not in ['en', 'unknown', '']:
                 continue
             # If english not confirmed but not denied — keep with flag
             english_confirmed = job_data.get('english_work_confirmed', True)

@@ -27,32 +27,33 @@ def expand_queries_from_new_jobs():
     for job in recent_jobs[:30]:
         job_list.append(f"- {job.title} at {job.company.name} [{job.posting_language}→{job.work_language}]")
 
-    prompt = f"""You are helping expand a job discovery system that finds remote freelance work for English speakers.
+    prompt = f"""You are helping expand a job discovery system that finds companies hiring remote freelance transcribers and AI data annotators worldwide.
 
 Recently discovered jobs:
 {chr(10).join(job_list)}
 
-Based on these discoveries, suggest 10 NEW search queries we should add to find MORE similar opportunities we might be missing.
+Based on these discoveries, suggest 20 NEW search queries to find MORE unknown companies hiring transcribers or AI annotators.
 
-Focus on:
-1. New job types or variations we haven't searched for
-2. Different languages or regions where similar work exists
-3. Specific niches within categories (e.g. "medical transcription" vs just "transcription")
-4. Companies or platforms similar to what we found
+STRICT RULES:
+1. ONLY suggest queries for transcription jobs OR AI data annotation/labeling jobs
+2. NO surveys, tutoring, virtual assistants, copywriting, or other job types
+3. Target UNKNOWN companies — not famous ones like Appen or Rev
+4. Queries must be in different languages (en, fr, de, nl, ja, ko, zh, es, pt, it, sv, pl, ar)
+5. Focus on niche transcription (medical, legal, podcast, court, academic) and niche annotation (autonomous vehicles, healthcare AI, NLP, computer vision)
+6. Queries should find DIRECT employer pages, not job boards or aggregators
 
-Return ONLY a JSON array of new queries:
+Return ONLY a JSON array:
 [
-  {{"lang": "en", "query": "search query here", "reason": "why this will find new opportunities"}},
-  {{"lang": "de", "query": "suchanfrage hier", "reason": "warum das neue Möglichkeiten findet"}}
+  {{"lang": "en", "query": "exact search query here", "reason": "why this finds unknown companies"}},
+  {{"lang": "fr", "query": "requête ici", "reason": "pourquoi cela trouve de nouvelles entreprises"}}
 ]
 
-Make queries specific and likely to find REAL hiring pages, not articles.
-Return ONLY valid JSON."""
+Return ONLY valid JSON, no other text."""
 
     try:
         message = client.chat.completions.create(
             model=DEPLOYMENT,
-            max_tokens=1000,
+            max_tokens=2000,
             messages=[{'role': 'user', 'content': prompt}]
         )
 

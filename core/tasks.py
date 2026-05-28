@@ -248,7 +248,7 @@ def run_single_search_query():
     if cache.get(combo_key):
         logger.info(f'Already searched this combination — skipping')
         return 0
-    cache.set(combo_key, True, timeout=86400 * 30)
+    cache.set(combo_key, True, timeout=86400 * 7)
 
     # Run the search with region
     urls = search_duckduckgo(query, lang, max_results=10, region=region)
