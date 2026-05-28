@@ -1,11 +1,10 @@
-import anthropic
+from core.crawlers.ai_client import client, DEPLOYMENT
 import json
 import logging
 import os
 
 logger = logging.getLogger(__name__)
 
-client = anthropic.Anthropic(api_key=os.getenv('ANTHROPIC_API_KEY'))
 
 
 def classify_job(title, description='', company_name='', source_url=''):
@@ -52,13 +51,13 @@ Return ONLY valid JSON, no other text:
 }}"""
 
     try:
-        message = client.messages.create(
-            model="claude-haiku-4-5-20251001",
+        message = client.chat.completions.create(
+            model=DEPLOYMENT,
             max_tokens=500,
             messages=[{"role": "user", "content": prompt}]
         )
 
-        response_text = message.content[0].text.strip()
+        response_text = message.choices[0].message.content.strip()
 
         # Clean up response if needed
         if '```json' in response_text:

@@ -471,15 +471,14 @@ def extract_jobs_with_keywords(url, soup, page_text, lang='en'):
 
 def extract_jobs_with_claude(url, page_text, lang='en'):
     try:
-        import anthropic
+        from core.crawlers.ai_client import client, DEPLOYMENT
         import os
         import json
 
-        client = anthropic.Anthropic(api_key=os.getenv('ANTHROPIC_API_KEY'))
         text_sample = page_text[:4000]
 
-        message = client.messages.create(
-            model="claude-haiku-4-5",
+        message = client.chat.completions.create(
+            model=DEPLOYMENT,
             max_tokens=512,
             messages=[{
                 "role": "user",

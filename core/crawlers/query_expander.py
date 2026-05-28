@@ -10,7 +10,7 @@ def expand_queries_from_new_jobs():
     Looks at recently discovered jobs and generates new search queries
     based on what was found. Makes the system self-learning.
     """
-    from core.crawlers.classifier import client
+    from core.crawlers.ai_client import client, DEPLOYMENT
     import json
 
     # Get jobs found in last 24 hours
@@ -50,13 +50,13 @@ Make queries specific and likely to find REAL hiring pages, not articles.
 Return ONLY valid JSON."""
 
     try:
-        message = client.messages.create(
-            model='claude-haiku-4-5-20251001',
+        message = client.chat.completions.create(
+            model=DEPLOYMENT,
             max_tokens=1000,
             messages=[{'role': 'user', 'content': prompt}]
         )
 
-        response_text = message.content[0].text.strip()
+        response_text = message.choices[0].message.content.strip()
         if '```json' in response_text:
             response_text = response_text.split('```json')[1].split('```')[0].strip()
         elif '```' in response_text:

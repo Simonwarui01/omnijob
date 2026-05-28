@@ -1,3 +1,4 @@
+from core.crawlers.ai_client import client, DEPLOYMENT
 import httpx
 import hashlib
 import logging
@@ -150,13 +151,13 @@ Return ONLY a JSON array:
   {{"num": 1, "relevant": true, "job_type": "transcription|annotation|ai_training|translation|voice|content_moderation|qa|other", "geo_tier": 0-5, "work_language": "en", "posting_language": "en"}}
 ]"""
 
-            message = client.messages.create(
-                model="claude-haiku-4-5-20251001",
+            message = client.chat.completions.create(
+                model=DEPLOYMENT,
                 max_tokens=2000,
                 messages=[{"role": "user", "content": prompt}]
             )
 
-            response_text = message.content[0].text.strip()
+            response_text = message.choices[0].message.content.strip()
             if '```json' in response_text:
                 response_text = response_text.split('```json')[1].split('```')[0].strip()
             elif '```' in response_text:

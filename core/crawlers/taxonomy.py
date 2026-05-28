@@ -1,3 +1,4 @@
+from core.crawlers.ai_client import client, DEPLOYMENT
 import logging
 from django.utils.text import slugify
 from django.db.models import Count
@@ -144,14 +145,14 @@ If no new category found:
 
 Return ONLY valid JSON."""
 
-        message = client.messages.create(
-            model="claude-haiku-4-5-20251001",
+        message = client.chat.completions.create(
+            model=DEPLOYMENT,
             max_tokens=300,
             messages=[{"role": "user", "content": prompt}]
         )
 
         import json
-        result = json.loads(message.content[0].text.strip())
+        result = json.loads(message.choices[0].message.content.strip())
 
         if result.get('new_category') and result.get('confidence', 0) > 60:
             name = result['name']
