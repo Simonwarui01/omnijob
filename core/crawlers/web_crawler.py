@@ -321,6 +321,56 @@ SKIP_DOMAINS = [
     'topcontent.com', 'textmaster.com',
 ]
 
+# ============================================================
+# APPLY URL VALIDATOR — rejects jobs with bad apply_url
+# Even if AI extracts a job, we reject it if apply_url
+# points to an article, aggregator, or job board
+# ============================================================
+BAD_APPLY_DOMAINS = [
+    # Article and blog sites
+    'earnbeyondborders.com', 'remoteleaf.com', 'remoteotter.com',
+    'nonphoneworkathome.com', 'wahojobs.com', 'remoteworkrebels.com',
+    'ivetriedthat.com', 'improveworkspace.com', 'schemaninja.com',
+    'stephatch.com', 'thinkoutsidethecubiclenow.com', 'nichepursuits.com',
+    'etoppc.com', 'etechpt.com', 'newsblog.pl', 'chalized.com',
+    'solidgigs.com', 'remotech.ai', 'aitrainer.work', 'genaijobs.co',
+    'huntscreens.com', 'aidoos.com', 'remotive.com', 'arc.dev',
+    'careerspage.io', 'realremotejobs.com', 'up2staff.com',
+    'workfromhomies.net', 'yaoweibin.cn', 'liezhe.com',
+    'news.like.tg', 'zaitakushigoto.com', 'toolify.ai',
+    'emilyturrettini.substack.com', 'note.com', 'fireflies.ai',
+    'speechify.com', 'appendata.com', 'comologia.com',
+    'goworkship.com', 'v2ex.com', 'kaigai-job.jp',
+    'remoterocketship.com', 'fr.workopolis.com', 'egyjob.net',
+    'jobplanet.co.kr', 'vakanser.se', 'remotetalentcloud.com',
+    'remoter.me', 'jp.indeed.com', 'linkedin.com',
+    'stanby.jp', 'indeed.com', 'glassdoor.com',
+    'aitoolnet.com', 'lesbonsfreelances.com', 'transgate.ai',
+    'ziloservices.com', 'sonix.ai/resources', 'amino.dk',
+    'remote.com/jobs', 'ghostwriting.com', 'duction.com',
+    'workathomesmart.com', 'escribr.com', 'geekflare.com',
+    'toptips.fr', 'etoppc.com', 'scriptme.io',
+    'remoteotter.com', 'wahojobs.com', 'remoteworkrebels.com',
+    # Job aggregators
+    'freelancer.com', 'freelancer.de', 'freelancer.mx',
+    'freelancer.es', 'freelancer.fr', 'freelancer.pt',
+    'crowdworks.jp', 'upwork.com', 'fiverr.com',
+    # Remote job boards
+    'remotive.io', 'remoteok.com', 'weworkremotely.com',
+    'remotehub.com', 'flexjobs.com', 'workingnomads.com',
+]
+
+def is_valid_apply_url(url):
+    """Returns True if the apply_url points to a direct employer page."""
+    if not url or not url.startswith('http'):
+        return False
+    domain = urlparse(url).netloc.lower()
+    if any(bad in domain for bad in BAD_APPLY_DOMAINS):
+        return False
+    return True
+
+
+
 def search_web(query, lang='en', max_results=8):
     """
     Searches the web using multiple engines with rotation.
@@ -926,6 +976,21 @@ def crawl_website(url, lang='en'):
             title = job_data.get('title', '')
 
             if not title or len(title) < 3:
+                continue
+
+            # Validate apply_url — reject if pointing to article/aggregator
+            apply_url_check = job_data.get('apply_url', url)
+            if not is_valid_apply_url(apply_url_check):
+                logger.debug(f'Rejected job with bad apply_url: {apply_url_check[:60]}')
+                continue
+
+            # Reject suspicious company names
+            BAD_COMPANY_PATTERNS = [
+                'multiple', 'listed', 'platforms', 'companies',
+                'article', 'blog', 'guide', 'not specified',
+            ]
+            if any(p in company_name.lower() for p in BAD_COMPANY_PATTERNS):
+                logger.debug(f'Rejected suspicious company: {company_name}')
                 continue
 
             # Get or create company
