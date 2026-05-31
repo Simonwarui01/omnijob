@@ -506,6 +506,10 @@ def search_bing(query, lang='en', max_results=8):
     return urls
 
 def extract_jobs_with_keywords(url, soup, page_text, lang='en'):
+    # Disabled — keyword scraper too permissive, AI only
+    return []
+
+def _extract_jobs_with_keywords_disabled(url, soup, page_text, lang='en'):
     """
     FREE replacement for Claude — uses keyword matching and HTML parsing.
     No API calls, no cost. Works in any language.
@@ -829,6 +833,16 @@ def crawl_website(url, lang='en'):
         # Skip if page looks like a blog article listing companies
         # rather than a company directly hiring
         ARTICLE_SIGNALS = [
+            # Chinese article signals
+            '行业调研', '市场占有率', '解决方案', '行业报告',
+            '市场分析', '趋势分析', '软件市场', '系统行业',
+            # Korean article signals
+            '리스트', '방법', '플랫폼 소개', '회사가 있나요',
+            # Japanese article signals
+            'おすすめ', 'ランキング', '比較', '一覧',
+            # General article signals
+            'market report', 'industry report', 'market analysis',
+            'market share', 'industry trends', 'solutions provider',
             'best transcription companies',
             'best annotation jobs',
             'top 10 sites',
@@ -873,7 +887,7 @@ def crawl_website(url, lang='en'):
         # Rate limit Claude — max 150 calls/day to stay under $5/month
         from django.core.cache import cache
         daily_calls = cache.get('claude_daily_calls', 0)
-        if daily_calls >= 50:
+        if daily_calls >= 200:
             logger.debug(f'Claude daily limit reached — using keyword scraper for {url}')
             jobs = extract_jobs_with_keywords(url, soup, page_text, lang)
         else:
@@ -888,7 +902,19 @@ def crawl_website(url, lang='en'):
         for job_data in jobs:
             if not job_data.get('is_relevant', False):
                 continue
-            # If work language is explicitly non-English — skip
+
+            # STRICT: only transcription and ai_annotation
+            job_type = job_data.get('job_type', 'other')
+            if job_type not in ['transcription', 'ai_annotation']:
+                # Try to remap close types
+                if job_type in ['annotation', 'ai_training', 'qa']:
+                    job_type = 'ai_annotation'
+                    job_data['job_type'] = 'ai_annotation'
+                else:
+                    logger.debug(f'Skipping irrelevant job type: {job_type}')
+                    continue
+
+            # If work language is explicitly non-English/French — skip
             work_lang = job_data.get('work_language', 'en')
             if work_lang not in ['en', 'fr', 'en+fr', 'unknown', '']:
                 continue
