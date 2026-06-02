@@ -250,9 +250,24 @@ def run_single_search_query():
         return 0
     cache.set(combo_key, True, timeout=86400 * 7)
 
-    # Run the search with region
+    # Run the search with region — process 3 URLs concurrently
     urls = search_duckduckgo(query, lang, max_results=10, region=region)
     
+    # Also run next 2 queries in same task execution to go faster
+    next_queries = []
+    for i in range(1, 3):
+        next_idx = (query_index + i) % len(ALL_QUERIES)
+        next_lang, next_query = ALL_QUERIES[next_idx]
+        next_combo_key = f'searched:{hashlib.md5(f"{next_query}:{region}".encode()).hexdigest()}'
+        if not cache.get(next_combo_key):
+            cache.set(next_combo_key, True, timeout=86400 * 7)
+            extra_urls = search_duckduckgo(next_query, next_lang, max_results=10, region=region)
+            urls.extend(extra_urls)
+            logger.info(f'Also running: [{next_lang}] {next_query[:40]}')
+
+    # Deduplicate URLs
+    urls = list(dict.fromkeys(urls))
+
     total_jobs = 0
     for url in urls:
         # Greenhouse slug

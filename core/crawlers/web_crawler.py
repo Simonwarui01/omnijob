@@ -456,7 +456,7 @@ def search_duckduckgo(query, lang='en', max_results=30, region='wt-wt'):
         # DuckDuckGo uses 's' parameter for pagination (s=30, s=60, s=90)
         for page_start in [30, 60, 90]:
             try:
-                time.sleep(random.uniform(3, 5))
+                time.sleep(random.uniform(1, 2))
                 r2 = httpx.get(
                     f"https://html.duckduckgo.com/html/?q={query.replace(' ', '+')}&kl={region}&s={page_start}",
                     headers=headers,
@@ -529,7 +529,7 @@ def search_bing(query, lang='en', max_results=8):
             timeout=20,
             follow_redirects=True,
         )
-        time.sleep(random.uniform(5, 10))
+        time.sleep(random.uniform(2, 4))
 
         if r.status_code != 200:
             return urls
@@ -809,7 +809,7 @@ def crawl_website(url, lang='en'):
         headers = {**HEADERS, 'Accept-Language': accept_lang}
 
         r = httpx.get(url, headers=headers, timeout=20, follow_redirects=True)
-        time.sleep(random.uniform(1, 2))
+        time.sleep(random.uniform(0.3, 0.8))
 
         if r.status_code != 200:
             return 0
@@ -933,16 +933,8 @@ def crawl_website(url, lang='en'):
             logger.debug(f'Article/list page detected — skipping {url}')
             return 0
 
-        # Use FREE keyword scraper — no API cost
-        # Rate limit Claude — max 150 calls/day to stay under $5/month
-        from django.core.cache import cache
-        daily_calls = cache.get('claude_daily_calls', 0)
-        if daily_calls >= 200:
-            logger.debug(f'Claude daily limit reached — using keyword scraper for {url}')
-            jobs = extract_jobs_with_keywords(url, soup, page_text, lang)
-        else:
-            cache.set('claude_daily_calls', daily_calls + 1, timeout=86400)
-            jobs = extract_jobs_with_claude(url, page_text, lang)
+        # Use Azure OpenAI — no cost limit, burning Azure credits
+        jobs = extract_jobs_with_claude(url, page_text, lang)
 
         if not jobs:
             return 0
@@ -1084,8 +1076,8 @@ def crawl_website(url, lang='en'):
                 # Ghost pipeline — check back in 7 days
                 cache.set(cache_key, True, timeout=86400 * 7)
             else:
-                # No jobs, no ghost signal — irrelevant source, never revisit
-                cache.set(cache_key, True, timeout=86400 * 365)
+                # No jobs found — revisit in 14 days in case they start hiring
+                cache.set(cache_key, True, timeout=86400 * 14)
 
     except Exception as e:
         logger.error(f'Web crawl error for {url}: {e}')
@@ -1147,7 +1139,7 @@ def run_web_discovery():
             if jobs > 0:
                 total_jobs += jobs
 
-        time.sleep(random.uniform(1, 2))
+        time.sleep(random.uniform(0.3, 0.8))
 
     print(f"\n✅ Web discovery complete")
     print(f"   Queries run:     {len(SEARCH_QUERIES)}")
