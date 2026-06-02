@@ -320,3 +320,16 @@ def run_query_expansion():
     except Exception as e:
         logger.error(f'Query expansion failed: {e}')
         return 0
+
+@shared_task
+def run_ai_seed_discovery():
+    """Uses GPT to generate company lists then crawls them directly. Runs every 2 hours."""
+    logger.info('Starting AI seed discovery...')
+    try:
+        from core.crawlers.ai_seed_crawler import run_ai_seed_discovery
+        total = run_ai_seed_discovery()
+        logger.info(f'AI seed discovery complete. {total} new jobs.')
+        return total
+    except Exception as e:
+        logger.error(f'AI seed discovery failed: {e}')
+        return 0

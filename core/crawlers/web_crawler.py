@@ -789,10 +789,42 @@ If not a direct employer hiring transcribers or annotators: []"""
         return []
 
 
+def find_jobs_subpage(url, soup):
+    """
+    If a page looks like a careers landing page with no jobs,
+    try to find the actual jobs listing subpage.
+    """
+    from urllib.parse import urljoin
+    
+    JOB_LINK_PATTERNS = [
+        'open roles', 'view jobs', 'see jobs', 'explore jobs',
+        'current openings', 'open positions', 'view openings',
+        'apply now', 'join our team', 'work with us',
+        'freelancer', 'freelance', 'contractor', 'crowd',
+        'opportunities', 'vacancies', 'explore open',
+    ]
+    
+    for a in soup.find_all('a', href=True):
+        text = a.get_text(strip=True).lower()
+        href = a['href'].lower()
+        
+        if any(p in text or p in href for p in JOB_LINK_PATTERNS):
+            full_url = a['href']
+            if full_url.startswith('http'):
+                return full_url
+            elif full_url.startswith('/'):
+                from urllib.parse import urlparse
+                parsed = urlparse(url)
+                return f"{parsed.scheme}://{parsed.netloc}{full_url}"
+    
+    return None
+
+
 def crawl_website(url, lang='en'):
     """
     Visits any website and uses Claude to extract job opportunities.
     Works on company websites, job boards, in any language.
+    Follows one level deeper if careers landing page found.
     """
     jobs_created = 0
 
@@ -944,6 +976,15 @@ def crawl_website(url, lang='en'):
 
         # Use Azure OpenAI — no cost limit, burning Azure credits
         jobs = extract_jobs_with_claude(url, page_text, lang)
+        
+        # If no jobs found and page looks like a landing page, try subpage
+        if not jobs:
+            subpage_url = find_jobs_subpage(url, soup)
+            if subpage_url and subpage_url != url:
+                logger.info(f'Following subpage: {subpage_url}')
+                sub_hash = __import__("hashlib").md5(subpage_url.encode()).hexdigest()
+                if not cache.get(f"crawled_url:{sub_hash}"):
+                    return crawl_website(subpage_url, lang)
 
         if not jobs:
             return 0
