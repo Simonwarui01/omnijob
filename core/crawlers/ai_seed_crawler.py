@@ -95,9 +95,18 @@ def find_company_careers_url(company_name):
     query = company_name + " careers transcription annotation remote freelance apply"
 
     try:
+        import os
+        username = os.getenv('DECODO_USERNAME')
+        password = os.getenv('DECODO_PASSWORD')
+        proxy = None
+        if username and password:
+            port = random.randint(10001, 10200)
+            proxy = f'http://{username}:{password}@dc.decodo.com:{port}'
+
         r = httpx.get(
             f"https://html.duckduckgo.com/html/?q={query.replace(' ', '+')}",
             headers=HEADERS,
+            proxy=proxy,
             timeout=20,
             follow_redirects=True,
         )
