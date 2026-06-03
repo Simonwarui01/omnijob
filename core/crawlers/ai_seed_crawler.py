@@ -79,8 +79,9 @@ Return ONLY a JSON array of company name strings, no other text."""
 
 
 def find_company_careers_url(company_name):
-    """Search DuckDuckGo for a specific company careers page."""
+    """Find company careers URL via DuckDuckGo using same proxy as web_crawler."""
     from bs4 import BeautifulSoup
+    from core.crawlers.web_crawler import get_proxy
 
     HEADERS = {
         "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36",
@@ -90,23 +91,16 @@ def find_company_careers_url(company_name):
     cache_key = f"company_searched:{hashlib.md5(company_name.lower().encode()).hexdigest()}"
     if cache.get(cache_key):
         return None
-    cache.set(cache_key, True, timeout=86400 * 30)
+    cache.set(cache_key, True, timeout=86400 * 7)
 
-    query = company_name + " careers transcription annotation remote freelance apply"
+    query = company_name + " careers jobs freelance transcription annotation apply"
 
     try:
-        import os
-        username = os.getenv('DECODO_USERNAME')
-        password = os.getenv('DECODO_PASSWORD')
-        proxy = None
-        if username and password:
-            port = random.randint(10001, 10200)
-            proxy = f'http://{username}:{password}@dc.decodo.com:{port}'
-
+        proxy = get_proxy()
         r = httpx.get(
             f"https://html.duckduckgo.com/html/?q={query.replace(' ', '+')}",
             headers=HEADERS,
-            proxy=proxy,
+            proxy=proxy.get('https://') if proxy else None,
             timeout=20,
             follow_redirects=True,
         )
@@ -118,12 +112,17 @@ def find_company_careers_url(company_name):
         soup = BeautifulSoup(r.text, "html.parser")
         links = soup.find_all("a", class_="result__url")
 
+        if not links:
+            return None
+
         BAD = ["indeed", "glassdoor", "linkedin", "monster", "ziprecruiter",
                "flexjobs", "remotive", "remoteleaf", "earnbeyondborders",
                "nichepursuits", "theworkathomewoman", "reddit", "quora",
                "wikipedia", "youtube", "facebook", "twitter", "instagram",
-               "upwork", "fiverr", "freelancer.com"]
+               "upwork", "fiverr", "freelancer.com", "remote.co/blog",
+               "workathomesmart", "thebalancemoney", "moneypantry"]
 
+        from urllib.parse import unquote, urlparse
         for link in links[:5]:
             raw = link.get("href", "")
             if "uddg=" in raw:
