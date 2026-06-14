@@ -235,9 +235,9 @@ def run_single_search_query():
     if region_index >= len(REGIONS):
         region_index = 0
         # All regions exhausted for this query — move to next query
-        cache.set('search_query_index', query_index + 1, timeout=86400 * 7)
+        cache.set('search_query_index', query_index + 1, timeout=86400 * 3)
     else:
-        cache.set(region_key, region_index + 1, timeout=86400 * 30)
+        cache.set(region_key, region_index + 1, timeout=86400 * 3)
 
     region = REGIONS[region_index]
     logger.info(f'Query {query_index+1}/{len(ALL_QUERIES)} region {region_index+1}/{len(REGIONS)}: [{lang}] {query[:40]} [{region}]')
@@ -248,7 +248,7 @@ def run_single_search_query():
     if cache.get(combo_key):
         logger.info(f'Already searched this combination — skipping')
         return 0
-    cache.set(combo_key, True, timeout=86400 * 7)
+    cache.set(combo_key, True, timeout=86400 * 3)
 
     # Run the search with region — process 3 URLs concurrently
     urls = search_duckduckgo(query, lang, max_results=10, region=region)
@@ -260,7 +260,7 @@ def run_single_search_query():
         next_lang, next_query = ALL_QUERIES[next_idx]
         next_combo_key = f'searched:{hashlib.md5(f"{next_query}:{region}".encode()).hexdigest()}'
         if not cache.get(next_combo_key):
-            cache.set(next_combo_key, True, timeout=86400 * 7)
+            cache.set(next_combo_key, True, timeout=86400 * 3)
             extra_urls = search_duckduckgo(next_query, next_lang, max_results=10, region=region)
             urls.extend(extra_urls)
             logger.info(f'Also running: [{next_lang}] {next_query[:40]}')

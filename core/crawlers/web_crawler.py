@@ -843,7 +843,7 @@ def crawl_website(url, lang='en'):
     # Will be updated after crawling based on what we found
     # Set initial cache — will be updated after crawl based on results
     # This prevents re-crawling if the process crashes mid-way
-    cache.set(cache_key, True, timeout=86400 * 365)
+    cache.set(cache_key, True, timeout=86400 * 3)
 
     try:
         accept_lang = LANG_HEADERS.get(lang, 'en-US,en;q=0.9')
@@ -1109,7 +1109,7 @@ def crawl_website(url, lang='en'):
         # Smart revisit logic
         if jobs_created > 0:
             # Found jobs — never revisit, we got what we needed
-            cache.set(cache_key, True, timeout=86400 * 365)
+            cache.set(cache_key, True, timeout=86400 * 3)
         else:
             # Check if page signals "check back later" (ghost pipeline)
             ghost_signals = [
@@ -1124,10 +1124,10 @@ def crawl_website(url, lang='en'):
 
             if is_ghost:
                 # Ghost pipeline — check back in 7 days
-                cache.set(cache_key, True, timeout=86400 * 7)
+                cache.set(cache_key, True, timeout=86400 * 3)
             else:
                 # No jobs found — revisit in 14 days in case they start hiring
-                cache.set(cache_key, True, timeout=86400 * 14)
+                cache.set(cache_key, True, timeout=86400 * 3)
 
     except Exception as e:
         logger.error(f'Web crawl error for {url}: {e}')
